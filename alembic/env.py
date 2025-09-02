@@ -2,11 +2,13 @@
 from sqlalchemy import create_engine, pool
 from alembic import context
 import os
+from pathlib import Path
 
-# load .env so DATABASE_URL is available (do not print secrets)
+# --- load .env from project root (never print secrets) ---
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]   # .../FOReportingv2
+    load_dotenv(PROJECT_ROOT / ".env")
 except Exception:
     pass
 
@@ -14,18 +16,18 @@ config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-target_metadata = None  # no autogenerate in this phase
+target_metadata = None  # no autogenerate here
 
 def get_url():
-    # Prefer env DATABASE_URL
+    # Prefer env DATABASE_URL from .env we just loaded
     url = os.getenv("DATABASE_URL")
     if url:
         return url
     # Fallback to sqlalchemy.url if non-empty and not a dummy
-    cfg_url = config.get_main_option("sqlalchemy.url") or ""
+    cfg_url = (config.get_main_option("sqlalchemy.url") or "").strip()
     if cfg_url and not cfg_url.startswith("driver://"):
         return cfg_url
-    raise RuntimeError("DATABASE_URL missing. Set in .env or real sqlalchemy.url (not 'driver://').")
+    raise RuntimeError("DATABASE_URL missing. Put the real DSN in .env or set sqlalchemy.url (not 'driver://').")
 
 def run_migrations_offline():
     context.configure(url=get_url(), literal_binds=True, dialect_opts={"paramstyle": "named"})
