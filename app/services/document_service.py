@@ -195,20 +195,20 @@ class DocumentService:
     
     def _get_investor_data(self, investor_code: str) -> Optional[Dict[str, Any]]:
         """Get investor data by code."""
-        from app.config import INVESTOR_FOLDERS
+        import os
         
         investor_configs = {
             "brainweb": {
                 "name": "BrainWeb Investment GmbH",
                 "code": "brainweb",
                 "description": "BrainWeb Investment GmbH - Private Equity and Venture Capital",
-                "folder_path": INVESTOR_FOLDERS.get("brainweb", "")
+                "folder_path": os.getenv("INVESTOR1_PATH", "")
             },
             "pecunalta": {
                 "name": "pecunalta GmbH",
                 "code": "pecunalta", 
                 "description": "pecunalta GmbH - Investment Management",
-                "folder_path": INVESTOR_FOLDERS.get("pecunalta", "")
+                "folder_path": os.getenv("INVESTOR2_PATH", "")
             }
         }
         
