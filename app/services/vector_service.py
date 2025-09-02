@@ -7,7 +7,10 @@ import chromadb
 from chromadb.config import Settings
 import openai
 
-from app.config import settings
+from app.config import load_settings
+import os
+
+settings = load_settings()
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +20,13 @@ class VectorService:
     
     def __init__(self):
         """Initialize the vector service."""
-        self.openai_client = openai.OpenAI(api_key=settings.openai_api_key)
-        self.embedding_model = settings.embedding_model
+        self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.embedding_model = settings.get("EMBEDDING_MODEL", "text-embedding-3-small")
         
         # Initialize ChromaDB
+        chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma/pe_docs")
         self.chroma_client = chromadb.PersistentClient(
-            path=settings.chroma_persist_directory,
+            path=chroma_dir,
             settings=Settings(
                 anonymized_telemetry=False,
                 allow_reset=True
@@ -33,7 +37,7 @@ class VectorService:
         self.collection_name = "documents"
         try:
             self.collection = self.chroma_client.get_collection(self.collection_name)
-        except ValueError:
+        except Exception:
             # Collection doesn't exist, create it
             self.collection = self.chroma_client.create_collection(
                 name=self.collection_name,

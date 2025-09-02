@@ -10,7 +10,10 @@ import hashlib
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileModifiedEvent
 
-from app.config import settings, get_investor_from_path
+from app.config import load_settings, get_investor_from_path
+import os
+
+settings = load_settings()
 from app.services.document_service import DocumentService
 from app.processors.processor_factory import ProcessorFactory
 
@@ -51,7 +54,7 @@ class DocumentFileHandler(FileSystemEventHandler):
         # Check file size (skip if too large)
         try:
             file_size = Path(file_path).stat().st_size
-            max_size = settings.max_file_size_mb * 1024 * 1024
+            max_size = settings.get("MAX_FILE_SIZE_MB", 100) * 1024 * 1024
             if file_size > max_size:
                 logger.warning(f"File too large ({file_size} bytes): {file_path}")
                 return
@@ -161,8 +164,8 @@ class FileWatcherService:
         try:
             # Watch investor folders
             folders_to_watch = [
-                settings.investor1_folder,
-                settings.investor2_folder,
+                os.getenv("INVESTOR1_PATH"),
+                os.getenv("INVESTOR2_PATH"),
             ]
             
             for folder in folders_to_watch:
@@ -207,8 +210,8 @@ class FileWatcherService:
         logger.info("Processing existing files...")
         
         folders_to_scan = [
-            settings.investor1_folder,
-            settings.investor2_folder,
+            os.getenv("INVESTOR1_PATH"),
+            os.getenv("INVESTOR2_PATH"),
         ]
         
         for folder in folders_to_scan:

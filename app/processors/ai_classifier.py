@@ -7,7 +7,10 @@ from typing import Dict, Any, Optional, List
 import tiktoken
 import openai
 
-from app.config import settings
+from app.config import load_settings
+import os
+
+settings = load_settings()
 from app.database.models import DocumentType
 
 
@@ -16,10 +19,10 @@ class AIClassifier:
     
     def __init__(self):
         """Initialize the AI classifier."""
-        self.client = openai.OpenAI(api_key=settings.openai_api_key)
-        self.model = settings.openai_model
-        self.max_tokens = settings.max_tokens
-        self.temperature = settings.temperature
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.model = settings.get("OPENAI_MODEL", "gpt-4-1106-preview")
+        self.max_tokens = settings.get("MAX_TOKENS", 4000)
+        self.temperature = settings.get("TEMPERATURE", 0.1)
         
         # Initialize tokenizer for text chunking
         try:

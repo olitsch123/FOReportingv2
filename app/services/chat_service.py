@@ -13,7 +13,10 @@ from app.database.models import (
     ChatSession, ChatMessage, Document, Fund, FinancialData, Investor
 )
 from app.services.vector_service import VectorService
-from app.config import settings
+from app.config import load_settings
+import os
+
+settings = load_settings()
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +26,11 @@ class ChatService:
     
     def __init__(self):
         """Initialize the chat service."""
-        self.openai_client = openai.OpenAI(api_key=settings.openai_api_key)
+        self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.vector_service = VectorService()
-        self.model = settings.openai_model
-        self.max_tokens = settings.max_tokens
-        self.temperature = settings.temperature
+        self.model = settings.get("OPENAI_MODEL", "gpt-4-1106-preview")
+        self.max_tokens = settings.get("MAX_TOKENS", 4000)
+        self.temperature = settings.get("TEMPERATURE", 0.1)
     
     async def create_session(self, session_name: Optional[str] = None) -> str:
         """Create a new chat session."""
