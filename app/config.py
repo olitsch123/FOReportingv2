@@ -45,3 +45,17 @@ def load_settings() -> dict:
     return settings
 
 settings = load_settings()
+
+def get_investor_from_path(file_path: str) -> str:
+    """Determine which investor a file belongs to based on its path."""
+    file_path = str(Path(file_path).absolute())
+    
+    investor1_path = settings.get("INVESTOR1_PATH", "")
+    investor2_path = settings.get("INVESTOR2_PATH", "")
+    
+    if investor1_path and file_path.startswith(investor1_path):
+        return "brainweb"
+    elif investor2_path and file_path.startswith(investor2_path):
+        return "pecunalta"
+    
+    return "unknown"

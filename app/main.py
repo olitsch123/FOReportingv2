@@ -10,7 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.config import settings
+from app.config import load_settings
+import os
+
+# Load settings
+settings = load_settings()
 from app.database.connection import get_db, engine, Base
 from app.database.models import Document, DocumentType, Investor, Fund, FinancialData
 from app.services.file_watcher import FileWatcherService
@@ -20,7 +24,7 @@ from app.services.vector_service import VectorService
 
 # Configure logging
 logging.basicConfig(
-    level=getattr(logging, settings.log_level),
+    level=getattr(logging, settings.get("LOG_LEVEL", "INFO")),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -406,8 +410,8 @@ if __name__ == "__main__":
     
     uvicorn.run(
         "app.main:app",
-        host=settings.api_host,
-        port=settings.api_port,
+        host=settings.get("API_HOST", "localhost"),
+        port=settings.get("API_PORT", 8000),
         reload=True,
-        log_level=settings.log_level.lower()
+        log_level=settings.get("LOG_LEVEL", "INFO").lower()
     )

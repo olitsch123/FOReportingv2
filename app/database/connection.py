@@ -6,12 +6,20 @@ from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 from typing import Generator
 
-from app.config import settings
+from app.config import load_settings
+import os
+
+# Load settings
+settings = load_settings()
 
 # Create database engine
+database_url = os.getenv("DATABASE_URL") or settings.get("DATABASE_URL")
+if not database_url:
+    raise RuntimeError("DATABASE_URL not found in environment or config")
+
 engine = create_engine(
-    settings.database_url,
-    echo=settings.log_level == "DEBUG",
+    database_url,
+    echo=settings.get("LOG_LEVEL") == "DEBUG",
     pool_pre_ping=True,
     pool_recycle=300,
 )
