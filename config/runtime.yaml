@@ -1,4 +1,4 @@
-﻿vector_backend: openai    # openai | chroma
+vector_backend: openai    # openai | chroma
 reporting_ccy: EUR
 
 openai:
