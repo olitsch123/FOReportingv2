@@ -4,10 +4,10 @@ from alembic import context
 import os
 from pathlib import Path
 
-# --- load .env from project root (never print secrets) ---
+# Load .env from repo root (don’t print secrets)
 try:
     from dotenv import load_dotenv
-    PROJECT_ROOT = Path(__file__).resolve().parents[1]   # .../FOReportingv2
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
     load_dotenv(PROJECT_ROOT / ".env")
 except Exception:
     pass
@@ -16,18 +16,16 @@ config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-target_metadata = None  # no autogenerate here
+target_metadata = None
 
 def get_url():
-    # Prefer env DATABASE_URL from .env we just loaded
     url = os.getenv("DATABASE_URL")
     if url:
         return url
-    # Fallback to sqlalchemy.url if non-empty and not a dummy
     cfg_url = (config.get_main_option("sqlalchemy.url") or "").strip()
     if cfg_url and not cfg_url.startswith("driver://"):
         return cfg_url
-    raise RuntimeError("DATABASE_URL missing. Put the real DSN in .env or set sqlalchemy.url (not 'driver://').")
+    raise RuntimeError("DATABASE_URL missing. Put real DSN in .env or set sqlalchemy.url (not 'driver://').")
 
 def run_migrations_offline():
     context.configure(url=get_url(), literal_binds=True, dialect_opts={"paramstyle": "named"})
@@ -35,7 +33,12 @@ def run_migrations_offline():
         context.run_migrations()
 
 def run_migrations_online():
-    connectable = create_engine(get_url(), poolclass=pool.NullPool)
+    # Pass UTF-8 option to Postgres explicitly (robust on Windows with non-ASCII paths)
+    connectable = create_engine(
+        get_url(),
+        poolclass=pool.NullPool,
+        connect_args={"options": "-c client_encoding=UTF8"}
+    )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
