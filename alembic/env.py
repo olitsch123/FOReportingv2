@@ -4,7 +4,7 @@ from alembic import context
 import os
 from pathlib import Path
 
-# Load .env from repo root (don’t print secrets)
+# Load .env from repo root (don't print secrets)
 try:
     from dotenv import load_dotenv
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -33,12 +33,18 @@ def run_migrations_offline():
         context.run_migrations()
 
 def run_migrations_online():
-    # Pass UTF-8 option to Postgres explicitly (robust on Windows with non-ASCII paths)
-    connectable = create_engine(
-        get_url(),
-        poolclass=pool.NullPool,
-        connect_args={"options": "-c client_encoding=UTF8"}
-    )
+    # Create engine with database-specific settings
+    url = get_url()
+    if url.startswith("postgresql"):
+        # Pass UTF-8 option to Postgres explicitly (robust on Windows with non-ASCII paths)
+        connectable = create_engine(
+            url,
+            poolclass=pool.NullPool,
+            connect_args={"options": "-c client_encoding=UTF8"}
+        )
+    else:
+        # For SQLite and other databases
+        connectable = create_engine(url, poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
