@@ -1,84 +1,47 @@
-"""Configuration management for FOReporting v2."""
+﻿from pathlib import Path
+import os, yaml
+from dotenv import load_dotenv
 
-import os
-from pathlib import Path
-from typing import List, Optional
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()  # do not print secrets
 
-from pydantic import BaseSettings, validator
+def _read_runtime_yaml() -> dict:
+    p = BASE_DIR / "config" / "runtime.yaml"
+    if p.exists():
+        with p.open("r", encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+            if isinstance(data, dict):
+                return data
+    return {}
 
+def load_settings() -> dict:
+    rt = _read_runtime_yaml()
 
-class Settings(BaseSettings):
-    """Application settings."""
-    
-    # OpenAI Configuration
-    openai_api_key: str
-    openai_model: str = "gpt-4-1106-preview"
-    embedding_model: str = "text-embedding-3-small"
-    
-    # Database Configuration
-    database_url: str
-    
-    # ChromaDB Configuration
-    chroma_persist_directory: str = "./chroma_db"
-    
-    # Document Processing
-    investor1_folder: str
-    investor2_folder: str
-    
-    # API Configuration
-    api_host: str = "localhost"
-    api_port: int = 8000
-    
-    # Logging
-    log_level: str = "INFO"
-    
-    # File Processing
-    supported_extensions: List[str] = [".pdf", ".csv", ".xlsx", ".xls"]
-    max_file_size_mb: int = 100
-    
-    # AI Processing
-    max_tokens: int = 4000
-    temperature: float = 0.1
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
-    
-    @validator("investor1_folder", "investor2_folder")
-    def validate_folder_paths(cls, v):
-        """Validate that folder paths exist."""
-        path = Path(v)
-        if not path.exists():
-            raise ValueError(f"Folder path does not exist: {v}")
-        return str(path.absolute())
-    
-    @validator("database_url")
-    def validate_database_url(cls, v):
-        """Validate database URL format."""
-        if not v.startswith(("postgresql://", "postgresql+psycopg2://")):
-            raise ValueError("Database URL must be a PostgreSQL connection string")
-        return v
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    vector_backend = (rt.get("vector_backend") or "openai").strip().lower()
+    reporting_ccy  = (rt.get("reporting_ccy") or "EUR").strip().upper()
+    openai_cfg     = rt.get("openai") or {}
+    ingestion_cfg  = rt.get("ingestion") or {}
+    scoring_cfg    = rt.get("scoring") or {}
+    tolerances_cfg = rt.get("tolerances") or {}
 
+    settings = {
+        # tracked defaults
+        "VECTOR_BACKEND": vector_backend,              # openai | chroma
+        "REPORTING_CCY": reporting_ccy,
+        "OPENAI_LLM_MODEL": openai_cfg.get("llm_model", "gpt-4.1"),
+        "OPENAI_EMBED_MODEL": openai_cfg.get("embedding_model", "text-embedding-3-large"),
+        "PE_SYNC_MODE": bool(ingestion_cfg.get("sync_mode", True)),
+        "PE_RESCAN_CRON": ingestion_cfg.get("rescan_cron", "0 * * * *"),
+        "SCORING": scoring_cfg,
+        "TOLERANCES": tolerances_cfg,
+        # secrets & paths (env ONLY)
+        "DATABASE_URL": os.getenv("DATABASE_URL"),
+        "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+        "OPENAI_VECTOR_STORE_ID": os.getenv("OPENAI_VECTOR_STORE_ID"),
+        "INVESTOR1_PATH": os.getenv("INVESTOR1_PATH"),
+        "INVESTOR2_PATH": os.getenv("INVESTOR2_PATH"),
+        "CHROMA_DIR": os.getenv("CHROMA_DIR"),
+    }
+    return settings
 
-# Global settings instance
-settings = Settings()
-
-
-# Folder mapping for investors
-INVESTOR_FOLDERS = {
-    "brainweb": settings.investor1_folder,
-    "pecunalta": settings.investor2_folder,
-}
-
-
-def get_investor_from_path(file_path: str) -> Optional[str]:
-    """Determine which investor a file belongs to based on its path."""
-    file_path = Path(file_path).absolute()
-    
-    for investor, folder in INVESTOR_FOLDERS.items():
-        if str(file_path).startswith(folder):
-            return investor
-    
-    return None
+settings = load_settings()
