@@ -1,0 +1,23 @@
+﻿vector_backend: openai    # openai | chroma
+reporting_ccy: EUR
+
+openai:
+  llm_model: gpt-4.1
+  embedding_model: text-embedding-3-large
+
+ingestion:
+  sync_mode: true
+  rescan_cron: "0 * * * *"   # hourly
+
+scoring:
+  weights:
+    synonym: 0.35
+    regex: 0.25
+    embedding: 0.30
+    context: 0.10
+  thresholds:
+    accept: 0.68
+    review: 0.50
+
+tolerances:
+  nav_bridge: 0.005
