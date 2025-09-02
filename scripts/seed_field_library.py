@@ -1,17 +1,14 @@
-# scripts/seed_field_library.py
-# Reads 'Field Library.xlsx' (+ optionally the Canoe PDF) to generate the runtime Field Library bundle:
-#   app/pe_docs/mapping/{field_library.yaml, column_map.csv, regex_bank.yaml, phrase_bank.yaml, validation_rules.yaml, units.yaml}
-# Run once locally, then commit the generated files.
-
-import os, sys, json, re
+﻿# scripts/seed_field_library.py
+# Generates Field Library bundle into app/pe_docs/mapping/ from "Field Library.xlsx".
+import os, sys, json, re, csv
 import pandas as pd
+from pathlib import Path
 
-SEED_DIR   = os.getenv("FIELD_SEED_DIR", "app/pe_docs/seeds")
-XLSX_NAME  = os.getenv("FIELD_SEED_XLSX", "Field Library.xlsx")
-PDF_NAME   = os.getenv("FIELD_SEED_PDF",  "Canoe Asset Data External Field Library + Field Approach-12.pdf")
-OUT_DIR    = "app/pe_docs/mapping"
+SEED_DIR = os.getenv("FIELD_SEED_DIR", "app/pe_docs/seeds")
+XLSX_NAME = os.getenv("FIELD_SEED_XLSX", "Field Library.xlsx")
+OUT_DIR = "app/pe_docs/mapping"
 
-os.makedirs(OUT_DIR, exist_ok=True)
+Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
 
 def normalize_name(s: str) -> str:
     s = (s or "").strip()
@@ -21,27 +18,22 @@ def normalize_name(s: str) -> str:
     s = s.strip().lower()
     return s.replace(" ", "_")
 
-def seed_from_xlsx(path):
+def seed_from_xlsx(path: str):
     xl = pd.ExcelFile(path)
-    # Expect tabs like: Static, Holdings, Operating_Metrics, Doc_Details, Txn_Attribution...
-    # We'll attempt to infer columns: Field Name, Type, Unit, Group, EN Synonyms, DE Synonyms, Patterns
-    fields = []
-    column_map = []
+    fields, column_map = [], []
     for sheet in xl.sheet_names:
         df = xl.parse(sheet).fillna("")
-        # heuristic column picks
         cols = {c.lower(): c for c in df.columns}
         name_col = cols.get("field name") or cols.get("field") or list(df.columns)[0]
-        type_col = cols.get("type") or None
-        unit_col = cols.get("unit") or None
-        syn_en   = cols.get("en synonyms") or cols.get("en") or None
-        syn_de   = cols.get("de synonyms") or cols.get("de") or None
-        patt_col = cols.get("patterns") or None
-        group    = sheet.strip()
-
+        type_col = cols.get("type")
+        unit_col = cols.get("unit")
+        syn_en  = cols.get("en synonyms") or cols.get("en")
+        syn_de  = cols.get("de synonyms") or cols.get("de")
+        patt_col= cols.get("patterns")
+        group   = sheet.strip()
         for _, row in df.iterrows():
             name = str(row.get(name_col, "")).strip()
-            if not name:
+            if not name: 
                 continue
             canonical = normalize_name(name)
             f = {
@@ -57,74 +49,72 @@ def seed_from_xlsx(path):
                 "patterns": [p.strip() for p in str(row.get(patt_col, "")).split(";") if p.strip()] if patt_col else [],
             }
             fields.append(f)
-            # also add basic column_map entries from synonyms
             for alias in f["synonyms"].get("en", []) + f["synonyms"].get("de", []):
                 column_map.append({"alias": alias, "canonical": canonical, "locale_hint": ""})
-
     return fields, column_map
 
 def write_bundle(fields, column_map):
-    # field_library.yaml (very minimal skeleton; enrich manually later)
-    yaml_lines = ["version: 1.0", "locales:", "  default_locale: en", "fields:"]
+    yaml = ["version: 1.0", "locales:", "  default_locale: en", "fields:"]
     for f in fields:
-        yaml_lines.append(f"  - canonical: {f['canonical']}")
-        yaml_lines.append(f"    label: \"{f['label']}\"")
-        yaml_lines.append(f"    type: {f['type']}")
-        yaml_lines.append(f"    unit: {f['unit']}")
-        yaml_lines.append(f"    group: \"{f['group']}\"")
+        yaml += [
+            f"  - canonical: {f['canonical']}",
+            f"    label: {json.dumps(f['label'])}",
+            f"    type: {f['type']}",
+            f"    unit: {f['unit']}",
+            f"    group: {json.dumps(f['group'])}",
+        ]
         if f["synonyms"]["en"] or f["synonyms"]["de"]:
-            yaml_lines.append(f"    synonyms:")
+            yaml.append("    synonyms:")
             if f["synonyms"]["en"]:
-                yaml_lines.append(f"      en: [{', '.join([json.dumps(s) for s in f['synonyms']['en']])}]")
+                yaml.append("      en: [" + ", ".join(json.dumps(s) for s in f["synonyms"]["en"]) + "]")
             if f["synonyms"]["de"]:
-                yaml_lines.append(f"      de: [{', '.join([json.dumps(s) for s in f['synonyms']['de']])}]")
+                yaml.append("      de: [" + ", ".join(json.dumps(s) for s in f["synonyms"]["de"]) + "]")
         if f["patterns"]:
-            yaml_lines.append(f"    patterns: [{', '.join([json.dumps(p) for p in f['patterns']])}]")
-    with open(os.path.join(OUT_DIR, "field_library.yaml"), "w", encoding="utf-8") as f:
-        f.write("\n".join(yaml_lines) + "\n")
+            yaml.append("    patterns: [" + ", ".join(json.dumps(p) for p in f["patterns"]) + "]")
+    Path(OUT_DIR, "field_library.yaml").write_text("\n".join(yaml) + "\n", encoding="utf-8")
 
-    # column_map.csv
-    import csv
-    with open(os.path.join(OUT_DIR, "column_map.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["alias","canonical","locale_hint"])
+    with open(Path(OUT_DIR, "column_map.csv"), "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["alias","canonical","locale_hint"])
         w.writeheader()
         seen = set()
         for r in column_map:
             key = (r["alias"], r["canonical"])
-            if key in seen:
+            if key in seen: 
                 continue
             seen.add(key)
             w.writerow(r)
 
-    # minimal stubs for other config files
-    with open(os.path.join(OUT_DIR, "regex_bank.yaml"), "w", encoding="utf-8") as f:
-        f.write("dates: ['(?i)\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b']\n")
-        f.write("currency: ['€','\$','£']\n")
-        f.write("neg_parentheses: ['^\(\s*\d[\d,\.\s]*\)$']\n")
-        f.write("units: ['(?i)(k|thou|m|mn|bn)$']\n")
-
-    with open(os.path.join(OUT_DIR, "phrase_bank.yaml"), "w", encoding="utf-8") as f:
-        f.write("QR:\n  anchors: ['(?i)nav reconciliation','(?i)statement of assets','(?i)portfolio holdings']\n")
-        f.write("CAS:\n  anchors: ['(?i)capital account statement','(?i)partner capital']\n")
-
-    with open(os.path.join(OUT_DIR, "validation_rules.yaml"), "w", encoding="utf-8") as f:
-        f.write("rules:\n")
-        f.write("  - id: cas_equation\n    applies_to: CAS\n")
-        f.write("    expr: "abs(ending - (opening + pic - dist - fees + pnl)) <= tolerance('nav_bridge')"\n")
-
-    with open(os.path.join(OUT_DIR, "units.yaml"), "w", encoding="utf-8") as f:
-        f.write("currency_symbols: {'€': EUR, '$': USD, '£': GBP}\n")
-        f.write("multipliers: {'k': 1000, 'm': 1000000, 'bn': 1000000000}\n")
-        f.write("decimal: {en: ['.',','], de: [',','.']}\n")
+    Path(OUT_DIR, "regex_bank.yaml").write_text(
+        "dates: ['(?i)\\b\\d{1,2}[./-]\\d{1,2}[./-]\\d{2,4}\\b']\n"
+        "currency: ['€','\\$','£']\n"
+        "neg_parentheses: ['^\\(\\s*\\d[\\d,\\.\\s]*\\)$']\n"
+        "units: ['(?i)(k|thou|m|mn|bn)$']\n", encoding="utf-8"
+    )
+    Path(OUT_DIR, "phrase_bank.yaml").write_text(
+        "QR:\n  anchors: ['(?i)nav reconciliation','(?i)statement of assets','(?i)portfolio holdings']\n"
+        "CAS:\n  anchors: ['(?i)capital account statement','(?i)partner capital']\n", encoding="utf-8"
+    )
+    Path(OUT_DIR, "validation_rules.yaml").write_text(
+        "rules:\n"
+        "  - id: cas_equation\n"
+        "    applies_to: CAS\n"
+        "    expr: \"abs(ending - (opening + pic - dist - fees + pnl)) <= tolerance('nav_bridge')\"\n",
+        encoding="utf-8"
+    )
+    Path(OUT_DIR, "units.yaml").write_text(
+        "currency_symbols: {'€': EUR, '$': USD, '£': GBP}\n"
+        "multipliers: {'k': 1000, 'm': 1000000, 'bn': 1000000000}\n"
+        "decimal: {en: ['.',','], de: [',','.']}\n", encoding="utf-8"
+    )
 
 def main():
-    xlsx_path = os.path.join(SEED_DIR, XLSX_NAME)
-    if not os.path.exists(xlsx_path):
+    xlsx_path = str(Path(SEED_DIR, XLSX_NAME))
+    if not Path(xlsx_path).exists():
         print(f"Seed XLSX not found at {xlsx_path}. Place it and re-run.")
         sys.exit(1)
     fields, colmap = seed_from_xlsx(xlsx_path)
     write_bundle(fields, colmap)
     print(f"Generated Field Library bundle in {OUT_DIR}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
