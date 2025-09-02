@@ -1,0 +1,4 @@
+dates: ['(?i)\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b']
+currency: ['€','\$','£']
+neg_parentheses: ['^\(\s*\d[\d,\.\s]*\)$']
+units: ['(?i)(k|thou|m|mn|bn)$']

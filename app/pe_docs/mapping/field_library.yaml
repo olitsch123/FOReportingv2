@@ -1,0 +1,2864 @@
+version: 1.0
+locales:
+  default_locale: en
+fields:
+  - canonical: data_date
+    label: "Data Date"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: ending_balance
+    label: "Ending Balance"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: entity_name
+    label: "Entity Name"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: investment_name
+    label: "Investment Name"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: beginning_balance___itd
+    label: "Beginning Balance - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: beginning_balance___period
+    label: "Beginning Balance - Period"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: beginning_balance___ytd
+    label: "Beginning Balance - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: beginning_date
+    label: "Beginning Date"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_contributions___period
+    label: "Capital Contributions - Period"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: currency
+    label: "Currency"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: report_date
+    label: "Report Date"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: sponsor
+    label: "Sponsor"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_contributions___itd
+    label: "Capital Contributions - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_contributions___ytd
+    label: "Capital Contributions - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_transfers_exchanges___itd
+    label: "Capital Transfers/Exchanges - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_transfers_exchanges___qtd
+    label: "Capital Transfers/Exchanges - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_transfers_exchanges___ytd
+    label: "Capital Transfers/Exchanges - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: entity_id
+    label: "Entity ID"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___gross___itd
+    label: "Management Fees - Gross - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___gross___qtd
+    label: "Management Fees - Gross - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___gross___ytd
+    label: "Management Fees - Gross - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___net___itd
+    label: "Management Fees - Net - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___net___qtd
+    label: "Management Fees - Net - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___net___ytd
+    label: "Management Fees - Net - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: beginning_unfunded_commitment
+    label: "Beginning Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_commitment_subscription
+    label: "Capital Commitment/Subscription"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_contributions___qtd
+    label: "Capital Contributions - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: capital_transfers_exchanges___mtd
+    label: "Capital Transfers/Exchanges - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: distribution___income___itd
+    label: "Distribution - Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: distribution___income___mtd
+    label: "Distribution - Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: distribution___income___qtd
+    label: "Distribution - Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: distribution___income___ytd
+    label: "Distribution - Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: dividends___itd
+    label: "Dividends - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: dividends___mtd
+    label: "Dividends - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: dividends___qtd
+    label: "Dividends - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: dividends___ytd
+    label: "Dividends - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: drawdowns_under_credit_facility___itd
+    label: "Drawdowns under Credit Facility - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: drawdowns_under_credit_facility___mtd
+    label: "Drawdowns under Credit Facility - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: drawdowns_under_credit_facility___qtd
+    label: "Drawdowns under Credit Facility - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: drawdowns_under_credit_facility___ytd
+    label: "Drawdowns under Credit Facility - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: ending_unfunded_commitment
+    label: "Ending Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____annualized_1_year
+    label: "Gross Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____annualized_3_year
+    label: "Gross Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____annualized_itd
+    label: "Gross Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____cumulative_itd
+    label: "Gross Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____itd
+    label: "Gross Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____mtd
+    label: "Gross Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____qtd
+    label: "Gross Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____ytd
+    label: "Gross Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____itd
+    label: "Gross Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____mtd
+    label: "Gross Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____qtd
+    label: "Gross Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: gross_return____ytd
+    label: "Gross Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: holdbacks_payable_amounts___itd
+    label: "Holdbacks/Payable Amounts - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: holdbacks_payable_amounts___mtd
+    label: "Holdbacks/Payable Amounts - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: holdbacks_payable_amounts___qtd
+    label: "Holdbacks/Payable Amounts - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: holdbacks_payable_amounts___ytd
+    label: "Holdbacks/Payable Amounts - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: incentive_allocation___itd
+    label: "Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: incentive_allocation___mtd
+    label: "Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: incentive_allocation___qtd
+    label: "Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: incentive_allocation___ytd
+    label: "Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___gross___mtd
+    label: "Management Fees - Gross - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: management_fees___net___mtd
+    label: "Management Fees - Net - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: nav_per_share___itd
+    label: "NAV Per Share - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: nav_per_share___mtd
+    label: "NAV Per Share - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: nav_per_share___qtd
+    label: "NAV Per Share - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: nav_per_share___ytd
+    label: "NAV Per Share - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_capital_activity___itd
+    label: "Net Capital Activity - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_capital_activity___mtd
+    label: "Net Capital Activity - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_capital_activity___qtd
+    label: "Net Capital Activity - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_capital_activity___ytd
+    label: "Net Capital Activity - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss___itd
+    label: "Net Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss___mtd
+    label: "Net Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss___qtd
+    label: "Net Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss___ytd
+    label: "Net Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss_before_incentive_allocation___itd
+    label: "Net Gain/(Loss) Before Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss_before_incentive_allocation___mtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss_before_incentive_allocation___qtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_gain_loss_before_incentive_allocation___ytd
+    label: "Net Gain/(Loss) Before Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_realized_and_unrealized_gain_loss___itd
+    label: "Net Realized and Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_realized_and_unrealized_gain_loss___qtd
+    label: "Net Realized and Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_realized_and_unrealized_gain_loss___ytd
+    label: "Net Realized and Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____annualized_1_year
+    label: "Net Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____annualized_3_year
+    label: "Net Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____annualized_itd
+    label: "Net Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____cumulative_itd
+    label: "Net Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____itd
+    label: "Net Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____mtd
+    label: "Net Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____qtd
+    label: "Net Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____ytd
+    label: "Net Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____itd
+    label: "Net Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____mtd
+    label: "Net Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____qtd
+    label: "Net Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____ytd
+    label: "Net Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_trading_profit_loss___itd
+    label: "Net Trading Profit/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_trading_profit_loss___mtd
+    label: "Net Trading Profit/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_trading_profit_loss___qtd
+    label: "Net Trading Profit/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_trading_profit_loss___ytd
+    label: "Net Trading Profit/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: new_issue_income___itd
+    label: "New Issue Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: new_issue_income___mtd
+    label: "New Issue Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: new_issue_income___qtd
+    label: "New Issue Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: new_issue_income___ytd
+    label: "New Issue Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: non_cash_distribution___itd
+    label: "Non Cash Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: non_cash_distribution___mtd
+    label: "Non Cash Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: non_cash_distribution___qtd
+    label: "Non Cash Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: non_cash_distribution___ytd
+    label: "Non Cash Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: number_of_shares_units___itd
+    label: "Number of Shares/Units - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: number_of_shares_units___mtd
+    label: "Number of Shares/Units - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: number_of_shares_units___qtd
+    label: "Number of Shares/Units - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: number_of_shares_units___ytd
+    label: "Number of Shares/Units - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_expenses___itd
+    label: "Other Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_expenses___mtd
+    label: "Other Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_expenses___qtd
+    label: "Other Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_expenses___ytd
+    label: "Other Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_fees___itd
+    label: "Other Fees - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_fees___mtd
+    label: "Other Fees - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_fees___qtd
+    label: "Other Fees - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_fees___ytd
+    label: "Other Fees - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_income___itd
+    label: "Other Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_income___mtd
+    label: "Other Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_income___qtd
+    label: "Other Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: other_income___ytd
+    label: "Other Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: realized_gain_loss___itd
+    label: "Realized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: realized_gain_loss___mtd
+    label: "Realized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: realized_gain_loss___qtd
+    label: "Realized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: realized_gain_loss___ytd
+    label: "Realized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: share_class
+    label: "Share Class"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: tax_distribution___itd
+    label: "Tax Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: tax_distribution___mtd
+    label: "Tax Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: tax_distribution___qtd
+    label: "Tax Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: tax_distribution___ytd
+    label: "Tax Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: total_expenses___itd
+    label: "Total Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: total_expenses___mtd
+    label: "Total Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: total_expenses___qtd
+    label: "Total Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: total_expenses___ytd
+    label: "Total Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: unrealized_gain_loss___itd
+    label: "Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: unrealized_gain_loss___mtd
+    label: "Unrealized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: unrealized_gain_loss___qtd
+    label: "Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: unrealized_gain_loss___ytd
+    label: "Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: withdrawal___itd
+    label: "Withdrawal - ITD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: withdrawal___mtd
+    label: "Withdrawal - MTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: withdrawal___qtd
+    label: "Withdrawal - QTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: withdrawal___ytd
+    label: "Withdrawal - YTD"
+    type: decimal
+    unit: currency
+    group: "Field Library"
+  - canonical: net_return____annualized_1_year
+    label: "Net Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: beginning_balance___itd
+    label: "Beginning Balance - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: beginning_balance___period
+    label: "Beginning Balance - Period"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: beginning_balance___ytd
+    label: "Beginning Balance - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: beginning_date
+    label: "Beginning Date"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_contributions___period
+    label: "Capital Contributions - Period"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: currency
+    label: "Currency"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: report_date
+    label: "Report Date"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: sponsor
+    label: "Sponsor"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____annualized_3_year
+    label: "Net Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____annualized_itd
+    label: "Net Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_contributions___itd
+    label: "Capital Contributions - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_contributions___ytd
+    label: "Capital Contributions - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_transfers_exchanges___itd
+    label: "Capital Transfers/Exchanges - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_transfers_exchanges___qtd
+    label: "Capital Transfers/Exchanges - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____cumulative_itd
+    label: "Net Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____itd
+    label: "Net Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_transfers_exchanges___ytd
+    label: "Capital Transfers/Exchanges - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____mtd
+    label: "Net Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: entity_id
+    label: "Entity ID"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___gross___itd
+    label: "Management Fees - Gross - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___gross___qtd
+    label: "Management Fees - Gross - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___gross___ytd
+    label: "Management Fees - Gross - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___net___itd
+    label: "Management Fees - Net - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___net___qtd
+    label: "Management Fees - Net - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____qtd
+    label: "Net Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____ytd
+    label: "Net Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____itd
+    label: "Net Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____mtd
+    label: "Net Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____qtd
+    label: "Net Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_return____ytd
+    label: "Net Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_trading_profit_loss___itd
+    label: "Net Trading Profit/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___net___ytd
+    label: "Management Fees - Net - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_trading_profit_loss___mtd
+    label: "Net Trading Profit/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: beginning_unfunded_commitment
+    label: "Beginning Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_commitment_subscription
+    label: "Capital Commitment/Subscription"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_trading_profit_loss___qtd
+    label: "Net Trading Profit/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_contributions___qtd
+    label: "Capital Contributions - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: capital_transfers_exchanges___mtd
+    label: "Capital Transfers/Exchanges - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: distribution___income___itd
+    label: "Distribution - Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: distribution___income___mtd
+    label: "Distribution - Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: distribution___income___qtd
+    label: "Distribution - Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: distribution___income___ytd
+    label: "Distribution - Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: dividends___itd
+    label: "Dividends - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_trading_profit_loss___ytd
+    label: "Net Trading Profit/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: dividends___mtd
+    label: "Dividends - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: new_issue_income___itd
+    label: "New Issue Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: new_issue_income___mtd
+    label: "New Issue Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: new_issue_income___qtd
+    label: "New Issue Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: new_issue_income___ytd
+    label: "New Issue Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: non_cash_distribution___itd
+    label: "Non Cash Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: dividends___qtd
+    label: "Dividends - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: dividends___ytd
+    label: "Dividends - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: drawdowns_under_credit_facility___itd
+    label: "Drawdowns under Credit Facility - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: non_cash_distribution___mtd
+    label: "Non Cash Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: drawdowns_under_credit_facility___mtd
+    label: "Drawdowns under Credit Facility - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: drawdowns_under_credit_facility___qtd
+    label: "Drawdowns under Credit Facility - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: drawdowns_under_credit_facility___ytd
+    label: "Drawdowns under Credit Facility - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: ending_unfunded_commitment
+    label: "Ending Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____annualized_1_year
+    label: "Gross Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____annualized_3_year
+    label: "Gross Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____annualized_itd
+    label: "Gross Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____cumulative_itd
+    label: "Gross Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____itd
+    label: "Gross Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____mtd
+    label: "Gross Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____qtd
+    label: "Gross Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: data_date
+    label: "Data Date"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____ytd
+    label: "Gross Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____itd
+    label: "Gross Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____mtd
+    label: "Gross Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____qtd
+    label: "Gross Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: gross_return____ytd
+    label: "Gross Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: holdbacks_payable_amounts___itd
+    label: "Holdbacks/Payable Amounts - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: holdbacks_payable_amounts___mtd
+    label: "Holdbacks/Payable Amounts - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: holdbacks_payable_amounts___qtd
+    label: "Holdbacks/Payable Amounts - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: holdbacks_payable_amounts___ytd
+    label: "Holdbacks/Payable Amounts - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: incentive_allocation___itd
+    label: "Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: non_cash_distribution___qtd
+    label: "Non Cash Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: incentive_allocation___mtd
+    label: "Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: non_cash_distribution___ytd
+    label: "Non Cash Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: incentive_allocation___qtd
+    label: "Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: number_of_shares_units___itd
+    label: "Number of Shares/Units - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: number_of_shares_units___mtd
+    label: "Number of Shares/Units - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: incentive_allocation___ytd
+    label: "Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___gross___mtd
+    label: "Management Fees - Gross - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: management_fees___net___mtd
+    label: "Management Fees - Net - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: nav_per_share___itd
+    label: "NAV Per Share - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: nav_per_share___mtd
+    label: "NAV Per Share - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: ending_balance
+    label: "Ending Balance"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: nav_per_share___qtd
+    label: "NAV Per Share - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: entity_name
+    label: "Entity Name"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: number_of_shares_units___qtd
+    label: "Number of Shares/Units - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: nav_per_share___ytd
+    label: "NAV Per Share - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_capital_activity___itd
+    label: "Net Capital Activity - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: number_of_shares_units___ytd
+    label: "Number of Shares/Units - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_expenses___itd
+    label: "Other Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_expenses___qtd
+    label: "Other Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_capital_activity___mtd
+    label: "Net Capital Activity - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_capital_activity___qtd
+    label: "Net Capital Activity - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_capital_activity___ytd
+    label: "Net Capital Activity - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss___itd
+    label: "Net Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: investment_name
+    label: "Investment Name"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_expenses___ytd
+    label: "Other Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_fees___itd
+    label: "Other Fees - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_fees___mtd
+    label: "Other Fees - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_expenses___mtd
+    label: "Other Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_fees___qtd
+    label: "Other Fees - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss___mtd
+    label: "Net Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_fees___ytd
+    label: "Other Fees - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_income___itd
+    label: "Other Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_income___mtd
+    label: "Other Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_income___qtd
+    label: "Other Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: other_income___ytd
+    label: "Other Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: realized_gain_loss___itd
+    label: "Realized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: realized_gain_loss___mtd
+    label: "Realized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: realized_gain_loss___qtd
+    label: "Realized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: realized_gain_loss___ytd
+    label: "Realized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss___qtd
+    label: "Net Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss___ytd
+    label: "Net Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: share_class
+    label: "Share Class"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss_before_incentive_allocation___itd
+    label: "Net Gain/(Loss) Before Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss_before_incentive_allocation___mtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: tax_distribution___itd
+    label: "Tax Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: tax_distribution___mtd
+    label: "Tax Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss_before_incentive_allocation___qtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: tax_distribution___qtd
+    label: "Tax Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_gain_loss_before_incentive_allocation___ytd
+    label: "Net Gain/(Loss) Before Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_realized_and_unrealized_gain_loss___itd
+    label: "Net Realized and Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_realized_and_unrealized_gain_loss___qtd
+    label: "Net Realized and Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: net_realized_and_unrealized_gain_loss___ytd
+    label: "Net Realized and Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: tax_distribution___ytd
+    label: "Tax Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: total_expenses___itd
+    label: "Total Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: total_expenses___mtd
+    label: "Total Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: total_expenses___qtd
+    label: "Total Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: total_expenses___ytd
+    label: "Total Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: unrealized_gain_loss___itd
+    label: "Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: unrealized_gain_loss___mtd
+    label: "Unrealized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: unrealized_gain_loss___qtd
+    label: "Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: unrealized_gain_loss___ytd
+    label: "Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: withdrawal___itd
+    label: "Withdrawal - ITD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: withdrawal___mtd
+    label: "Withdrawal - MTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: withdrawal___qtd
+    label: "Withdrawal - QTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: withdrawal___ytd
+    label: "Withdrawal - YTD"
+    type: decimal
+    unit: currency
+    group: "Distribution"
+  - canonical: data_date
+    label: "Data Date"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: ending_balance
+    label: "Ending Balance"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: entity_name
+    label: "Entity Name"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: investment_name
+    label: "Investment Name"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: beginning_balance___itd
+    label: "Beginning Balance - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: beginning_balance___period
+    label: "Beginning Balance - Period"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: beginning_balance___ytd
+    label: "Beginning Balance - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: beginning_date
+    label: "Beginning Date"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_contributions___period
+    label: "Capital Contributions - Period"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: currency
+    label: "Currency"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: report_date
+    label: "Report Date"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: sponsor
+    label: "Sponsor"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_contributions___itd
+    label: "Capital Contributions - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_contributions___ytd
+    label: "Capital Contributions - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_transfers_exchanges___itd
+    label: "Capital Transfers/Exchanges - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_transfers_exchanges___qtd
+    label: "Capital Transfers/Exchanges - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_transfers_exchanges___ytd
+    label: "Capital Transfers/Exchanges - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: entity_id
+    label: "Entity ID"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___gross___itd
+    label: "Management Fees - Gross - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___gross___qtd
+    label: "Management Fees - Gross - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___gross___ytd
+    label: "Management Fees - Gross - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___net___itd
+    label: "Management Fees - Net - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___net___qtd
+    label: "Management Fees - Net - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___net___ytd
+    label: "Management Fees - Net - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: beginning_unfunded_commitment
+    label: "Beginning Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_commitment_subscription
+    label: "Capital Commitment/Subscription"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_contributions___qtd
+    label: "Capital Contributions - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: capital_transfers_exchanges___mtd
+    label: "Capital Transfers/Exchanges - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: distribution___income___itd
+    label: "Distribution - Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: distribution___income___mtd
+    label: "Distribution - Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: distribution___income___qtd
+    label: "Distribution - Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: distribution___income___ytd
+    label: "Distribution - Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: dividends___itd
+    label: "Dividends - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: dividends___mtd
+    label: "Dividends - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: dividends___qtd
+    label: "Dividends - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: dividends___ytd
+    label: "Dividends - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: drawdowns_under_credit_facility___itd
+    label: "Drawdowns under Credit Facility - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: drawdowns_under_credit_facility___mtd
+    label: "Drawdowns under Credit Facility - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: drawdowns_under_credit_facility___qtd
+    label: "Drawdowns under Credit Facility - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: drawdowns_under_credit_facility___ytd
+    label: "Drawdowns under Credit Facility - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: ending_unfunded_commitment
+    label: "Ending Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____annualized_1_year
+    label: "Gross Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____annualized_3_year
+    label: "Gross Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____annualized_itd
+    label: "Gross Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____cumulative_itd
+    label: "Gross Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____itd
+    label: "Gross Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____mtd
+    label: "Gross Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____qtd
+    label: "Gross Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____ytd
+    label: "Gross Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____itd
+    label: "Gross Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____mtd
+    label: "Gross Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____qtd
+    label: "Gross Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: gross_return____ytd
+    label: "Gross Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: holdbacks_payable_amounts___itd
+    label: "Holdbacks/Payable Amounts - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: holdbacks_payable_amounts___mtd
+    label: "Holdbacks/Payable Amounts - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: holdbacks_payable_amounts___qtd
+    label: "Holdbacks/Payable Amounts - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: holdbacks_payable_amounts___ytd
+    label: "Holdbacks/Payable Amounts - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: incentive_allocation___itd
+    label: "Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: incentive_allocation___mtd
+    label: "Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: incentive_allocation___qtd
+    label: "Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: incentive_allocation___ytd
+    label: "Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___gross___mtd
+    label: "Management Fees - Gross - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: management_fees___net___mtd
+    label: "Management Fees - Net - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: nav_per_share___itd
+    label: "NAV Per Share - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: nav_per_share___mtd
+    label: "NAV Per Share - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: nav_per_share___qtd
+    label: "NAV Per Share - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: nav_per_share___ytd
+    label: "NAV Per Share - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_capital_activity___itd
+    label: "Net Capital Activity - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_capital_activity___mtd
+    label: "Net Capital Activity - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_capital_activity___qtd
+    label: "Net Capital Activity - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_capital_activity___ytd
+    label: "Net Capital Activity - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss___itd
+    label: "Net Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss___mtd
+    label: "Net Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss___qtd
+    label: "Net Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss___ytd
+    label: "Net Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss_before_incentive_allocation___itd
+    label: "Net Gain/(Loss) Before Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss_before_incentive_allocation___mtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss_before_incentive_allocation___qtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_gain_loss_before_incentive_allocation___ytd
+    label: "Net Gain/(Loss) Before Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_realized_and_unrealized_gain_loss___itd
+    label: "Net Realized and Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_realized_and_unrealized_gain_loss___qtd
+    label: "Net Realized and Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_realized_and_unrealized_gain_loss___ytd
+    label: "Net Realized and Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____annualized_1_year
+    label: "Net Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____annualized_3_year
+    label: "Net Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____annualized_itd
+    label: "Net Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____cumulative_itd
+    label: "Net Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____itd
+    label: "Net Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____mtd
+    label: "Net Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____qtd
+    label: "Net Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____ytd
+    label: "Net Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____itd
+    label: "Net Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____mtd
+    label: "Net Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____qtd
+    label: "Net Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_return____ytd
+    label: "Net Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_trading_profit_loss___itd
+    label: "Net Trading Profit/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_trading_profit_loss___mtd
+    label: "Net Trading Profit/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_trading_profit_loss___qtd
+    label: "Net Trading Profit/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: net_trading_profit_loss___ytd
+    label: "Net Trading Profit/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: new_issue_income___itd
+    label: "New Issue Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: new_issue_income___mtd
+    label: "New Issue Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: new_issue_income___qtd
+    label: "New Issue Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: new_issue_income___ytd
+    label: "New Issue Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: non_cash_distribution___itd
+    label: "Non Cash Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: non_cash_distribution___mtd
+    label: "Non Cash Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: non_cash_distribution___qtd
+    label: "Non Cash Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: non_cash_distribution___ytd
+    label: "Non Cash Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: number_of_shares_units___itd
+    label: "Number of Shares/Units - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: number_of_shares_units___mtd
+    label: "Number of Shares/Units - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: number_of_shares_units___qtd
+    label: "Number of Shares/Units - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: number_of_shares_units___ytd
+    label: "Number of Shares/Units - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_expenses___itd
+    label: "Other Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_expenses___mtd
+    label: "Other Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_expenses___qtd
+    label: "Other Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_expenses___ytd
+    label: "Other Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_fees___itd
+    label: "Other Fees - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_fees___mtd
+    label: "Other Fees - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_fees___qtd
+    label: "Other Fees - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_fees___ytd
+    label: "Other Fees - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_income___itd
+    label: "Other Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_income___mtd
+    label: "Other Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_income___qtd
+    label: "Other Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: other_income___ytd
+    label: "Other Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: realized_gain_loss___itd
+    label: "Realized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: realized_gain_loss___mtd
+    label: "Realized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: realized_gain_loss___qtd
+    label: "Realized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: realized_gain_loss___ytd
+    label: "Realized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: share_class
+    label: "Share Class"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: tax_distribution___itd
+    label: "Tax Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: tax_distribution___mtd
+    label: "Tax Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: tax_distribution___qtd
+    label: "Tax Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: tax_distribution___ytd
+    label: "Tax Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: total_expenses___itd
+    label: "Total Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: total_expenses___mtd
+    label: "Total Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: total_expenses___qtd
+    label: "Total Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: total_expenses___ytd
+    label: "Total Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: unrealized_gain_loss___itd
+    label: "Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: unrealized_gain_loss___mtd
+    label: "Unrealized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: unrealized_gain_loss___qtd
+    label: "Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: unrealized_gain_loss___ytd
+    label: "Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: withdrawal___itd
+    label: "Withdrawal - ITD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: withdrawal___mtd
+    label: "Withdrawal - MTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: withdrawal___qtd
+    label: "Withdrawal - QTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: withdrawal___ytd
+    label: "Withdrawal - YTD"
+    type: decimal
+    unit: currency
+    group: "Account"
+  - canonical: data_date
+    label: "Data Date"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: ending_balance
+    label: "Ending Balance"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: entity_name
+    label: "Entity Name"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: investment_name
+    label: "Investment Name"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: beginning_balance___itd
+    label: "Beginning Balance - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: beginning_balance___period
+    label: "Beginning Balance - Period"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: beginning_balance___ytd
+    label: "Beginning Balance - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: beginning_date
+    label: "Beginning Date"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_contributions___period
+    label: "Capital Contributions - Period"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: currency
+    label: "Currency"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: report_date
+    label: "Report Date"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: sponsor
+    label: "Sponsor"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_contributions___itd
+    label: "Capital Contributions - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_contributions___ytd
+    label: "Capital Contributions - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_transfers_exchanges___itd
+    label: "Capital Transfers/Exchanges - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_transfers_exchanges___qtd
+    label: "Capital Transfers/Exchanges - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_transfers_exchanges___ytd
+    label: "Capital Transfers/Exchanges - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: entity_id
+    label: "Entity ID"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___gross___itd
+    label: "Management Fees - Gross - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___gross___qtd
+    label: "Management Fees - Gross - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___gross___ytd
+    label: "Management Fees - Gross - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___net___itd
+    label: "Management Fees - Net - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___net___qtd
+    label: "Management Fees - Net - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___net___ytd
+    label: "Management Fees - Net - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: beginning_unfunded_commitment
+    label: "Beginning Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_commitment_subscription
+    label: "Capital Commitment/Subscription"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_contributions___qtd
+    label: "Capital Contributions - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: capital_transfers_exchanges___mtd
+    label: "Capital Transfers/Exchanges - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: distribution___income___itd
+    label: "Distribution - Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: distribution___income___mtd
+    label: "Distribution - Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: distribution___income___qtd
+    label: "Distribution - Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: distribution___income___ytd
+    label: "Distribution - Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: dividends___itd
+    label: "Dividends - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: dividends___mtd
+    label: "Dividends - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: dividends___qtd
+    label: "Dividends - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: dividends___ytd
+    label: "Dividends - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: drawdowns_under_credit_facility___itd
+    label: "Drawdowns under Credit Facility - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: drawdowns_under_credit_facility___mtd
+    label: "Drawdowns under Credit Facility - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: drawdowns_under_credit_facility___qtd
+    label: "Drawdowns under Credit Facility - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: drawdowns_under_credit_facility___ytd
+    label: "Drawdowns under Credit Facility - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: ending_unfunded_commitment
+    label: "Ending Unfunded Commitment"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____annualized_1_year
+    label: "Gross Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____annualized_3_year
+    label: "Gross Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____annualized_itd
+    label: "Gross Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____cumulative_itd
+    label: "Gross Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____itd
+    label: "Gross Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____mtd
+    label: "Gross Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____qtd
+    label: "Gross Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____ytd
+    label: "Gross Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____itd
+    label: "Gross Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____mtd
+    label: "Gross Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____qtd
+    label: "Gross Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: gross_return____ytd
+    label: "Gross Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: holdbacks_payable_amounts___itd
+    label: "Holdbacks/Payable Amounts - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: holdbacks_payable_amounts___mtd
+    label: "Holdbacks/Payable Amounts - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: holdbacks_payable_amounts___qtd
+    label: "Holdbacks/Payable Amounts - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: holdbacks_payable_amounts___ytd
+    label: "Holdbacks/Payable Amounts - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: incentive_allocation___itd
+    label: "Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: incentive_allocation___mtd
+    label: "Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: incentive_allocation___qtd
+    label: "Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: incentive_allocation___ytd
+    label: "Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___gross___mtd
+    label: "Management Fees - Gross - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: management_fees___net___mtd
+    label: "Management Fees - Net - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: nav_per_share___itd
+    label: "NAV Per Share - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: nav_per_share___mtd
+    label: "NAV Per Share - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: nav_per_share___qtd
+    label: "NAV Per Share - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: nav_per_share___ytd
+    label: "NAV Per Share - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_capital_activity___itd
+    label: "Net Capital Activity - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_capital_activity___mtd
+    label: "Net Capital Activity - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_capital_activity___qtd
+    label: "Net Capital Activity - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_capital_activity___ytd
+    label: "Net Capital Activity - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss___itd
+    label: "Net Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss___mtd
+    label: "Net Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss___qtd
+    label: "Net Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss___ytd
+    label: "Net Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss_before_incentive_allocation___itd
+    label: "Net Gain/(Loss) Before Incentive Allocation - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss_before_incentive_allocation___mtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss_before_incentive_allocation___qtd
+    label: "Net Gain/(Loss) Before Incentive Allocation - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_gain_loss_before_incentive_allocation___ytd
+    label: "Net Gain/(Loss) Before Incentive Allocation - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_realized_and_unrealized_gain_loss___itd
+    label: "Net Realized and Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_realized_and_unrealized_gain_loss___qtd
+    label: "Net Realized and Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_realized_and_unrealized_gain_loss___ytd
+    label: "Net Realized and Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____annualized_1_year
+    label: "Net Return (%) - Annualized 1-Year"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____annualized_3_year
+    label: "Net Return (%) - Annualized 3-Year"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____annualized_itd
+    label: "Net Return (%) - Annualized ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____cumulative_itd
+    label: "Net Return (%) - Cumulative ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____itd
+    label: "Net Return (%) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____mtd
+    label: "Net Return (%) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____qtd
+    label: "Net Return (%) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____ytd
+    label: "Net Return (%) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____itd
+    label: "Net Return ($) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____mtd
+    label: "Net Return ($) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____qtd
+    label: "Net Return ($) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_return____ytd
+    label: "Net Return ($) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_trading_profit_loss___itd
+    label: "Net Trading Profit/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_trading_profit_loss___mtd
+    label: "Net Trading Profit/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_trading_profit_loss___qtd
+    label: "Net Trading Profit/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: net_trading_profit_loss___ytd
+    label: "Net Trading Profit/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: new_issue_income___itd
+    label: "New Issue Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: new_issue_income___mtd
+    label: "New Issue Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: new_issue_income___qtd
+    label: "New Issue Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: new_issue_income___ytd
+    label: "New Issue Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: non_cash_distribution___itd
+    label: "Non Cash Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: non_cash_distribution___mtd
+    label: "Non Cash Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: non_cash_distribution___qtd
+    label: "Non Cash Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: non_cash_distribution___ytd
+    label: "Non Cash Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: number_of_shares_units___itd
+    label: "Number of Shares/Units - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: number_of_shares_units___mtd
+    label: "Number of Shares/Units - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: number_of_shares_units___qtd
+    label: "Number of Shares/Units - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: number_of_shares_units___ytd
+    label: "Number of Shares/Units - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_expenses___itd
+    label: "Other Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_expenses___mtd
+    label: "Other Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_expenses___qtd
+    label: "Other Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_expenses___ytd
+    label: "Other Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_fees___itd
+    label: "Other Fees - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_fees___mtd
+    label: "Other Fees - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_fees___qtd
+    label: "Other Fees - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_fees___ytd
+    label: "Other Fees - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_income___itd
+    label: "Other Income - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_income___mtd
+    label: "Other Income - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_income___qtd
+    label: "Other Income - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: other_income___ytd
+    label: "Other Income - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: realized_gain_loss___itd
+    label: "Realized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: realized_gain_loss___mtd
+    label: "Realized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: realized_gain_loss___qtd
+    label: "Realized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: realized_gain_loss___ytd
+    label: "Realized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: share_class
+    label: "Share Class"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: tax_distribution___itd
+    label: "Tax Distribution - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: tax_distribution___mtd
+    label: "Tax Distribution - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: tax_distribution___qtd
+    label: "Tax Distribution - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: tax_distribution___ytd
+    label: "Tax Distribution - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: total_expenses___itd
+    label: "Total Expenses - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: total_expenses___mtd
+    label: "Total Expenses - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: total_expenses___qtd
+    label: "Total Expenses - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: total_expenses___ytd
+    label: "Total Expenses - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: unrealized_gain_loss___itd
+    label: "Unrealized Gain/(Loss) - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: unrealized_gain_loss___mtd
+    label: "Unrealized Gain/(Loss) - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: unrealized_gain_loss___qtd
+    label: "Unrealized Gain/(Loss) - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: unrealized_gain_loss___ytd
+    label: "Unrealized Gain/(Loss) - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: withdrawal___itd
+    label: "Withdrawal - ITD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: withdrawal___mtd
+    label: "Withdrawal - MTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: withdrawal___qtd
+    label: "Withdrawal - QTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
+  - canonical: withdrawal___ytd
+    label: "Withdrawal - YTD"
+    type: decimal
+    unit: currency
+    group: "Call Notice"
