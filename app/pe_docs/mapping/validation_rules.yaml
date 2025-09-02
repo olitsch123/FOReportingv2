@@ -1,0 +1,4 @@
+rules:
+  - id: cas_equation
+    applies_to: CAS
+    expr: "abs(ending - (opening + pic - dist - fees + pnl)) <= tolerance('nav_bridge')"

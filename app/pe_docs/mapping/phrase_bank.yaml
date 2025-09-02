@@ -1,0 +1,4 @@
+QR:
+  anchors: ['(?i)nav reconciliation','(?i)statement of assets','(?i)portfolio holdings']
+CAS:
+  anchors: ['(?i)capital account statement','(?i)partner capital']
