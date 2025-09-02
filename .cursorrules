@@ -112,3 +112,4 @@ EXECUTION PLAN (DO NOT PAUSE)
    - If multi-tenant scoping exists: add org_id; enforce RLS via session var.
    - Index `(fund_id, investor_id, as_of_date)` and `(fund_id, investor_id, flow_date)`; `(doc_type, period_end)`.
    - Persist Chroma at `./data/chroma/pe_docs` (env override) or rely on OPENAI_VECTOR_STORE_ID.
+   - Never switch the database engine to SQLite. Always use DATABASE_URL (Postgres). No fallbacks.
