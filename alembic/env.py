@@ -3,19 +3,29 @@ from sqlalchemy import create_engine, pool
 from alembic import context
 import os
 
+# --- load .env so DATABASE_URL is available ---
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-target_metadata = None  # we are not using autogenerate here
+target_metadata = None  # no autogenerate in this phase
 
 def get_url():
-    url = config.get_main_option("sqlalchemy.url")
-    if not url:
-        url = os.getenv("DATABASE_URL")
-    if not url:
-        raise RuntimeError("Set DATABASE_URL in your environment or sqlalchemy.url in alembic.ini")
-    return url
+    # 1st: take DATABASE_URL from environment (.env loaded above)
+    url = os.getenv("DATABASE_URL")
+    if url:
+        return url
+    # 2nd: fall back to config only if non-empty and not a placeholder
+    cfg_url = config.get_main_option("sqlalchemy.url") or ""
+    if cfg_url and not cfg_url.startswith("driver://"):
+        return cfg_url
+    raise RuntimeError("DATABASE_URL missing. Set in .env or sqlalchemy.url with a real DSN (not 'driver://').")
 
 def run_migrations_offline():
     context.configure(url=get_url(), literal_binds=True, dialect_opts={"paramstyle": "named"})
