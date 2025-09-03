@@ -3,7 +3,9 @@ import os, yaml
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv()  # do not print secrets
+# Set UTF-8 encoding for Windows
+os.environ.setdefault('PYTHONUTF8', '1')
+load_dotenv(encoding='utf-8')  # do not print secrets
 
 def _read_runtime_yaml() -> dict:
     p = BASE_DIR / "config" / "runtime.yaml"
@@ -48,14 +50,27 @@ settings = load_settings()
 
 def get_investor_from_path(file_path: str) -> str:
     """Determine which investor a file belongs to based on its path."""
-    file_path = str(Path(file_path).absolute())
-    
-    investor1_path = settings.get("INVESTOR1_PATH", "")
-    investor2_path = settings.get("INVESTOR2_PATH", "")
-    
-    if investor1_path and file_path.startswith(investor1_path):
-        return "brainweb"
-    elif investor2_path and file_path.startswith(investor2_path):
-        return "pecunalta"
-    
-    return "unknown"
+    try:
+        file_path = str(Path(file_path).absolute())
+        
+        investor1_path = settings.get("INVESTOR1_PATH", "")
+        investor2_path = settings.get("INVESTOR2_PATH", "")
+        
+        # Handle UTF-8 paths safely
+        if investor1_path:
+            try:
+                if file_path.startswith(investor1_path):
+                    return "brainweb"
+            except (UnicodeError, UnicodeDecodeError):
+                pass
+        
+        if investor2_path:
+            try:
+                if file_path.startswith(investor2_path):
+                    return "pecunalta"
+            except (UnicodeError, UnicodeDecodeError):
+                pass
+        
+        return "unknown"
+    except Exception:
+        return "unknown"
