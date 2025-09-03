@@ -23,26 +23,42 @@ class VectorService:
         self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.embedding_model = settings.get("EMBEDDING_MODEL", "text-embedding-3-small")
         
-        # Initialize ChromaDB
-        chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma/pe_docs")
-        self.chroma_client = chromadb.PersistentClient(
-            path=chroma_dir,
-            settings=Settings(
-                anonymized_telemetry=False,
-                allow_reset=True
-            )
-        )
-        
-        # Get or create collection
-        self.collection_name = "documents"
+        # Initialize ChromaDB with error handling to prevent crash-loop
         try:
-            self.collection = self.chroma_client.get_collection(self.collection_name)
-        except Exception:
-            # Collection doesn't exist, create it
-            self.collection = self.chroma_client.create_collection(
-                name=self.collection_name,
-                metadata={"description": "Financial document embeddings"}
+            chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma/pe_docs")
+            self.chroma_client = chromadb.PersistentClient(
+                path=chroma_dir,
+                settings=Settings(
+                    anonymized_telemetry=False,
+                    allow_reset=True
+                )
             )
+        except Exception as e:
+            logger.warning(f"ChromaDB initialization failed: {e}")
+            logger.info("Vector service will operate without ChromaDB")
+            self.chroma_client = None
+        
+        # Get or create collection with error handling
+        self.collection_name = "documents"
+        self.collection = None
+        
+        if self.chroma_client is not None:
+            try:
+                self.collection = self.chroma_client.get_collection(self.collection_name)
+            except Exception as e:
+                logger.warning(f"Failed to get collection: {e}")
+                try:
+                    # Collection doesn't exist, create it
+                    self.collection = self.chroma_client.create_collection(
+                        name=self.collection_name,
+                        metadata={"description": "Financial document embeddings"}
+                    )
+                except Exception as create_error:
+                    logger.error(f"Failed to create collection: {create_error}")
+                    logger.info("Vector service will operate in degraded mode")
+                    self.collection = None
+        else:
+            logger.info("Vector service operating without ChromaDB (using OpenAI Vector Store)")
         
         logger.info(f"Vector service initialized with collection: {self.collection_name}")
     
@@ -177,6 +193,16 @@ class VectorService:
     async def get_collection_stats(self) -> Dict[str, Any]:
         """Get statistics about the vector collection."""
         try:
+            if self.collection is None:
+                return {
+                    'total_chunks': 0,
+                    'unique_documents': 0,
+                    'document_types': {},
+                    'collection_name': self.collection_name,
+                    'status': 'unavailable',
+                    'note': 'Vector service in degraded mode'
+                }
+            
             count = self.collection.count()
             
             # Get sample of documents to analyze
@@ -206,7 +232,14 @@ class VectorService:
             
         except Exception as e:
             logger.error(f"Error getting collection stats: {str(e)}")
-            return {}
+            return {
+                'total_chunks': 0,
+                'unique_documents': 0,
+                'document_types': {},
+                'collection_name': self.collection_name,
+                'status': 'error',
+                'error': str(e)
+            }
     
     async def _create_embedding(self, text: str) -> Optional[List[float]]:
         """Create embedding for text using OpenAI."""

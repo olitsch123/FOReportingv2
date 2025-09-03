@@ -22,6 +22,7 @@ engine = create_engine(
     echo=settings.get("LOG_LEVEL") == "DEBUG",
     pool_pre_ping=True,
     pool_recycle=300,
+    connect_args={"options": "-c client_encoding=UTF8"}
 )
 
 # Create session factory

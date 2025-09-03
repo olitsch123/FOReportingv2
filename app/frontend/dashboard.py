@@ -10,13 +10,14 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # Page configuration
 st.set_page_config(
