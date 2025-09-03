@@ -1,1 +1,0 @@
-"""PE Documents processing module."""
