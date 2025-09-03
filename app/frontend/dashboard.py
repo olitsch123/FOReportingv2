@@ -16,8 +16,12 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+# Import API client
+from app.frontend.api_client import (
+    show_api_status, get_health, get_stats, get_pe_documents, 
+    get_pe_kpis, get_pe_nav_bridge, get_pe_cashflows, get_pe_jobs,
+    post_pe_rag_query, retry_pe_job, API_BASE_URL
+)
 
 # Page configuration
 st.set_page_config(
@@ -593,6 +597,9 @@ def render_analytics():
 def main():
     """Main application function."""
     render_header()
+    
+    # Show API connection status
+    show_api_status()
     
     # Render sidebar and get selected page
     page = render_sidebar()
