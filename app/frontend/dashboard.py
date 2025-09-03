@@ -16,12 +16,40 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import API client
-from app.frontend.api_client import (
-    show_api_status, get_health, get_stats, get_pe_documents, 
-    get_pe_kpis, get_pe_nav_bridge, get_pe_cashflows, get_pe_jobs,
-    post_pe_rag_query, retry_pe_job, API_BASE_URL
-)
+# Configuration - Environment-driven API base URL
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+# API Client Functions (inline to avoid import issues)
+def api_request(endpoint: str, method: str = "GET", params: dict = None, json_data: dict = None, timeout: int = 5) -> dict:
+    """Make API request with error handling."""
+    try:
+        url = f"{API_BASE_URL}{endpoint}"
+        if method == "GET":
+            response = requests.get(url, params=params, timeout=timeout)
+        elif method == "POST":
+            response = requests.post(url, json=json_data, timeout=timeout)
+        else:
+            return {"status": "error", "error": f"Unsupported method: {method}"}
+        
+        response.raise_for_status()
+        return {"status": "success", "data": response.json()}
+    except requests.exceptions.RequestException as e:
+        return {"status": "error", "error": str(e)}
+
+def show_api_status():
+    """Show API connection status banner."""
+    health = api_request("/health")
+    pe_health = api_request("/pe/health")
+    
+    if health["status"] == "success" and pe_health["status"] == "success":
+        st.success(f"🟢 API Connected: {API_BASE_URL}")
+    else:
+        st.error(f"🔴 API Unavailable: {API_BASE_URL}")
+        if health["status"] == "error":
+            st.error(f"Main API: {health.get('error', 'Unknown error')}")
+        if pe_health["status"] == "error":
+            st.error(f"PE API: {pe_health.get('error', 'Unknown error')}")
+        st.info("💡 Make sure the backend is running on the configured API_BASE_URL")
 
 # Page configuration
 st.set_page_config(
