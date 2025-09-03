@@ -21,7 +21,8 @@ class VectorService:
     def __init__(self):
         """Initialize the vector service."""
         self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.embedding_model = settings.get("EMBEDDING_MODEL", "text-embedding-3-small")
+        # Use configured embedding model
+        self.embedding_model = settings.get("OPENAI_EMBED_MODEL", "text-embedding-3-small")
         
         # Initialize ChromaDB with error handling to prevent crash-loop
         try:

@@ -30,8 +30,9 @@ def load_settings() -> dict:
         # tracked defaults
         "VECTOR_BACKEND": vector_backend,              # openai | chroma
         "REPORTING_CCY": reporting_ccy,
-        "OPENAI_LLM_MODEL": openai_cfg.get("llm_model", "gpt-4.1"),
-        "OPENAI_EMBED_MODEL": openai_cfg.get("embedding_model", "text-embedding-3-large"),
+        # allow env to override runtime.yaml
+        "OPENAI_LLM_MODEL": os.getenv("OPENAI_LLM_MODEL") or openai_cfg.get("llm_model", "gpt-4.1"),
+        "OPENAI_EMBED_MODEL": os.getenv("OPENAI_EMBED_MODEL") or openai_cfg.get("embedding_model", "text-embedding-3-large"),
         "PE_SYNC_MODE": bool(ingestion_cfg.get("sync_mode", True)),
         "PE_RESCAN_CRON": ingestion_cfg.get("rescan_cron", "0 * * * *"),
         "SCORING": scoring_cfg,
