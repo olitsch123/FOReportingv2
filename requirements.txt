@@ -11,8 +11,18 @@ chromadb==0.4.18
 
 # Document processing
 PyPDF2==3.0.1
+pdfplumber==0.10.3
+camelot-py[cv]==0.11.0
+tabula-py==2.8.2
+pytesseract==0.3.10
+pillow==10.1.0
+python-magic==0.4.27
 pandas==2.1.4
 openpyxl==3.1.2
+lxml==4.9.3
+ofxtools==0.9.5
+python-dateutil==2.8.2
+pytz==2023.3
 python-docx==1.1.0
 
 # AI/ML
@@ -26,8 +36,11 @@ watchdog==3.0.0
 # Utilities
 python-dotenv==1.0.0
 httpx==0.25.2
+tenacity==8.2.3
 structlog==23.2.0
 rich==13.7.0
+click==8.1.7
+pyyaml==6.0.1
 
 # Web interface
 streamlit==1.28.2
