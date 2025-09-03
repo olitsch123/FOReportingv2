@@ -18,7 +18,7 @@ settings = load_settings()
 from app.services.document_service import DocumentService
 from app.processors.processor_factory import ProcessorFactory
 from app.pe_docs.api import handle_file as pe_handle_file
-from app.pe_docs.storage.ledger import create_file_ledger
+# from app.pe_docs.storage.ledger import create_file_ledger  # TODO: Re-enable when storage modules restored
 
 logger = logging.getLogger(__name__)
 

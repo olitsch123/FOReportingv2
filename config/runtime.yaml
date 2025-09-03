@@ -1,4 +1,4 @@
-vector_backend: openai    # openai | chroma
+vector_backend: openai    # openai | chroma (using openai to avoid chroma sqlite issues)
 reporting_ccy: EUR
 
 openai:
