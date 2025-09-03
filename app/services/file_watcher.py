@@ -11,11 +11,14 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileModifiedEvent
 
 from app.config import load_settings, get_investor_from_path
+from app.database.connection import get_db
 import os
 
 settings = load_settings()
 from app.services.document_service import DocumentService
 from app.processors.processor_factory import ProcessorFactory
+from app.pe_docs.api import handle_file as pe_handle_file
+from app.pe_docs.storage.ledger import create_file_ledger
 
 logger = logging.getLogger(__name__)
 
@@ -119,11 +122,20 @@ class DocumentFileHandler(FileSystemEventHandler):
                 logger.warning(f"Could not determine investor for file: {file_path}")
                 return
             
-            # Process the document
-            result = await self.document_service.process_document(
-                file_path=file_path,
-                investor_code=investor_code
-            )
+            # Process via PE docs API
+            db = next(get_db())
+            try:
+                await pe_handle_file(file_path, "default", investor_code, db)
+                result = True
+            except Exception as e:
+                logger.error(f"PE docs processing failed: {e}")
+                # Fallback to original document service
+                result = await self.document_service.process_document(
+                    file_path=file_path,
+                    investor_code=investor_code
+                )
+            finally:
+                db.close()
             
             if result:
                 logger.info(f"Successfully processed: {file_path}")
@@ -231,6 +243,50 @@ class FileWatcherService:
                         self.handler._queue_file_for_processing(str(file_path), "existing")
         
         logger.info("Finished queuing existing files for processing")
+    
+    async def rescan_pe_paths(self):
+        """Rescan PE investor paths for new files."""
+        logger.info("Rescanning PE investor paths...")
+        
+        db = next(get_db())
+        try:
+            ledger = create_file_ledger(db)
+            
+            investor1_path = settings.get('INVESTOR1_PATH')
+            investor2_path = settings.get('INVESTOR2_PATH')
+            
+            total_new = 0
+            
+            if investor1_path and Path(investor1_path).exists():
+                new_files = ledger.scan_directory(investor1_path, "brainweb", "brainweb")
+                logger.info(f"INVESTOR1_PATH: found {len(new_files)} new files")
+                
+                for file_path in new_files:
+                    try:
+                        await pe_handle_file(file_path, "brainweb", "brainweb", db)
+                        total_new += 1
+                    except Exception as e:
+                        logger.error(f"Error processing {file_path}: {e}")
+            
+            if investor2_path and Path(investor2_path).exists():
+                new_files = ledger.scan_directory(investor2_path, "pecunalta", "pecunalta")
+                logger.info(f"INVESTOR2_PATH: found {len(new_files)} new files")
+                
+                for file_path in new_files:
+                    try:
+                        await pe_handle_file(file_path, "pecunalta", "pecunalta", db)
+                        total_new += 1
+                    except Exception as e:
+                        logger.error(f"Error processing {file_path}: {e}")
+            
+            db.commit()
+            logger.info(f"PE rescan completed: {total_new} new files processed")
+            
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error during PE rescan: {e}")
+        finally:
+            db.close()
     
     async def process_single_file(self, file_path: str) -> bool:
         """Process a single file manually."""

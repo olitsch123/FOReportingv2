@@ -104,7 +104,7 @@ def render_sidebar():
     
     page = st.sidebar.selectbox(
         "Select Page",
-        ["Dashboard", "Chat Interface", "Documents", "Funds", "Analytics"]
+        ["Dashboard", "Chat Interface", "Documents", "Funds", "Analytics", "PE — Portfolio", "PE — Documents & RAG"]
     )
     
     st.sidebar.markdown("---")
@@ -607,6 +607,362 @@ def main():
         render_funds()
     elif page == "Analytics":
         render_analytics()
+    elif page == "PE — Portfolio":
+        render_pe_portfolio()
+    elif page == "PE — Documents & RAG":
+        render_pe_documents_rag()
+
+
+def render_pe_portfolio():
+    """Render PE Portfolio page with NAV bridge, flows, and KPIs."""
+    st.header("🏛️ PE — Portfolio")
+    
+    # Filters
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        org_code = st.selectbox("Organization", ["brainweb", "pecunalta", "all"], index=2)
+    
+    with col2:
+        investor_code = st.selectbox("Investor", ["brainweb", "pecunalta", "all"], index=2)
+    
+    with col3:
+        # Get available funds
+        try:
+            funds_response = requests.get(f"{API_BASE_URL}/pe/documents")
+            funds_data = funds_response.json() if funds_response.status_code == 200 else []
+            fund_ids = list(set([doc.get('fund_id') for doc in funds_data if doc.get('fund_id')]))
+            fund_ids.insert(0, "all")
+            selected_fund = st.selectbox("Fund", fund_ids)
+        except Exception:
+            selected_fund = st.selectbox("Fund", ["all"])
+    
+    with col4:
+        currency = st.selectbox("Currency", ["EUR", "USD", "GBP"])
+    
+    # Date range
+    col1, col2 = st.columns(2)
+    with col1:
+        start_date = st.date_input("Start Date", value=datetime.now().date().replace(month=1, day=1))
+    with col2:
+        end_date = st.date_input("End Date", value=datetime.now().date())
+    
+    if selected_fund and selected_fund != "all":
+        # KPI Tiles
+        st.subheader("📈 Key Performance Indicators")
+        
+        try:
+            kpi_response = requests.get(f"{API_BASE_URL}/pe/kpis", params={
+                "fund_id": selected_fund,
+                "as_of_date": end_date.isoformat()
+            })
+            
+            if kpi_response.status_code == 200:
+                kpis = kpi_response.json()
+                
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("TVPI", f"{kpis.get('tvpi', 0):.2f}x", 
+                             help="Total Value to Paid-in Capital")
+                
+                with col2:
+                    st.metric("DPI", f"{kpis.get('dpi', 0):.2f}x",
+                             help="Distributions to Paid-in Capital")
+                
+                with col3:
+                    st.metric("RVPI", f"{kpis.get('rvpi', 0):.2f}x",
+                             help="Residual Value to Paid-in Capital")
+                
+                with col4:
+                    current_nav = kpis.get('current_nav', 0)
+                    st.metric("Current NAV", f"€{current_nav:,.0f}")
+        
+        except Exception as e:
+            st.error(f"Error loading KPIs: {e}")
+        
+        # NAV Bridge
+        st.subheader("💰 Monthly NAV Bridge")
+        
+        try:
+            bridge_response = requests.get(f"{API_BASE_URL}/pe/nav-bridge", params={
+                "fund_id": selected_fund,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat()
+            })
+            
+            if bridge_response.status_code == 200:
+                bridge_data = bridge_response.json()
+                periods = bridge_data.get('periods', [])
+                
+                if periods:
+                    df = pd.DataFrame(periods)
+                    df['period_end'] = pd.to_datetime(df['period_end'])
+                    
+                    # Display table
+                    st.dataframe(df, use_container_width=True)
+                    
+                    # Chart
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(
+                        x=df['period_end'],
+                        y=df['nav_end'],
+                        mode='lines+markers',
+                        name='NAV',
+                        line=dict(color='#1f77b4', width=3)
+                    ))
+                    
+                    fig.update_layout(
+                        title="NAV Progression",
+                        xaxis_title="Period",
+                        yaxis_title="NAV (€)",
+                        height=400
+                    )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("No NAV bridge data available")
+            else:
+                st.error("Error loading NAV bridge data")
+        
+        except Exception as e:
+            st.error(f"Error loading NAV bridge: {e}")
+        
+        # Cashflows
+        st.subheader("💸 Cashflows")
+        
+        try:
+            cf_response = requests.get(f"{API_BASE_URL}/pe/cashflows", params={
+                "fund_id": selected_fund,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat()
+            })
+            
+            if cf_response.status_code == 200:
+                cashflows = cf_response.json()
+                
+                if cashflows:
+                    df_cf = pd.DataFrame(cashflows)
+                    df_cf['flow_date'] = pd.to_datetime(df_cf['flow_date'])
+                    
+                    # Summary by type
+                    col1, col2, col3 = st.columns(3)
+                    
+                    calls = df_cf[df_cf['flow_type'] == 'CALL']['amount'].sum()
+                    dists = df_cf[df_cf['flow_type'] == 'DIST']['amount'].sum() 
+                    fees = df_cf[df_cf['flow_type'] == 'FEE']['amount'].sum()
+                    
+                    with col1:
+                        st.metric("Total Calls", f"€{calls:,.0f}")
+                    with col2:
+                        st.metric("Total Distributions", f"€{dists:,.0f}")
+                    with col3:
+                        st.metric("Total Fees", f"€{fees:,.0f}")
+                    
+                    # Detailed table
+                    display_cf = df_cf[['flow_date', 'flow_type', 'amount', 'currency']].copy()
+                    display_cf['flow_date'] = display_cf['flow_date'].dt.strftime('%Y-%m-%d')
+                    st.dataframe(display_cf, use_container_width=True)
+                else:
+                    st.info("No cashflow data available")
+        
+        except Exception as e:
+            st.error(f"Error loading cashflows: {e}")
+    
+    else:
+        st.info("Please select a specific fund to view portfolio details")
+
+def render_pe_documents_rag():
+    """Render PE Documents & RAG page."""
+    st.header("📄 PE — Documents & RAG")
+    
+    # Document list
+    st.subheader("📋 Document Library")
+    
+    # Filters
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        doc_type_filter = st.selectbox("Document Type", 
+                                      ["all", "QR", "CAS", "CALL", "DIST", "LPA", "PPM", "SUBSCRIPTION"])
+    
+    with col2:
+        # Get available funds for filter
+        try:
+            funds_response = requests.get(f"{API_BASE_URL}/pe/documents")
+            funds_data = funds_response.json() if funds_response.status_code == 200 else []
+            fund_ids = list(set([doc.get('fund_id') for doc in funds_data if doc.get('fund_id')]))
+            fund_ids.insert(0, "all")
+            fund_filter = st.selectbox("Fund", fund_ids)
+        except Exception:
+            fund_filter = st.selectbox("Fund", ["all"])
+    
+    with col3:
+        investor_filter = st.selectbox("Investor", ["all", "brainweb", "pecunalta"])
+    
+    # Load documents
+    try:
+        params = {}
+        if doc_type_filter != "all":
+            params["doc_type"] = doc_type_filter
+        if fund_filter != "all":
+            params["fund_id"] = fund_filter
+        if investor_filter != "all":
+            params["investor_code"] = investor_filter
+        
+        docs_response = requests.get(f"{API_BASE_URL}/pe/documents", params=params)
+        
+        if docs_response.status_code == 200:
+            documents = docs_response.json()
+            
+            if documents:
+                # Convert to DataFrame for display
+                df_docs = pd.DataFrame(documents)
+                
+                # Format dates
+                if 'created_at' in df_docs.columns:
+                    df_docs['created_at'] = pd.to_datetime(df_docs['created_at']).dt.strftime('%Y-%m-%d %H:%M')
+                
+                # Display columns
+                display_cols = ['file_name', 'doc_type', 'investor_code', 'created_at']
+                available_cols = [col for col in display_cols if col in df_docs.columns]
+                
+                if available_cols:
+                    st.dataframe(df_docs[available_cols], use_container_width=True)
+            else:
+                st.info("No documents found matching filters")
+        else:
+            st.error("Error loading documents")
+    
+    except Exception as e:
+        st.error(f"Error loading documents: {e}")
+    
+    st.markdown("---")
+    
+    # RAG Interface
+    st.subheader("🤖 Document Search & Chat")
+    
+    # RAG query interface
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        query = st.text_input("Ask a question about your PE documents:", 
+                             placeholder="e.g., What was the NAV for Fund ABC as of December 2023?")
+    
+    with col2:
+        search_button = st.button("Search", type="primary")
+    
+    # Advanced filters for RAG
+    with st.expander("Advanced Search Filters"):
+        rag_col1, rag_col2, rag_col3 = st.columns(3)
+        
+        with rag_col1:
+            rag_fund_filter = st.selectbox("Limit to Fund", fund_ids if 'fund_ids' in locals() else ["all"], key="rag_fund")
+        
+        with rag_col2:
+            rag_doc_type = st.selectbox("Document Type", 
+                                       ["all", "QR", "CAS", "CALL", "DIST", "LPA", "PPM"], key="rag_doc_type")
+        
+        with rag_col3:
+            top_k = st.slider("Max Results", 1, 20, 5)
+    
+    # Execute RAG query
+    if search_button and query:
+        with st.spinner("Searching documents..."):
+            try:
+                rag_payload = {
+                    "query": query,
+                    "top_k": top_k
+                }
+                
+                if rag_fund_filter != "all":
+                    rag_payload["fund_id"] = rag_fund_filter
+                
+                if rag_doc_type != "all":
+                    rag_payload["doc_type"] = rag_doc_type
+                
+                rag_response = requests.post(f"{API_BASE_URL}/pe/rag/query", json=rag_payload)
+                
+                if rag_response.status_code == 200:
+                    rag_result = rag_response.json()
+                    
+                    # Display answer
+                    st.markdown("### 💡 Answer")
+                    st.markdown(rag_result.get('answer', 'No answer generated'))
+                    
+                    # Display citations
+                    citations = rag_result.get('citations', [])
+                    if citations:
+                        st.markdown("### 📚 Sources")
+                        
+                        for i, citation in enumerate(citations, 1):
+                            with st.expander(f"Source {i}: {citation.get('doc_id', 'Unknown')} (Page {citation.get('page_no', 1)})"):
+                                st.markdown(f"**Document Type:** {citation.get('doc_type', 'Unknown')}")
+                                st.markdown(f"**Relevance Score:** {citation.get('relevance_score', 0):.2f}")
+                                st.markdown(f"**Snippet:**")
+                                st.text(citation.get('snippet', 'No snippet available'))
+                else:
+                    st.error("Error executing search query")
+            
+            except Exception as e:
+                st.error(f"Error during search: {e}")
+    
+    # Processing status
+    st.markdown("---")
+    st.subheader("⚙️ Processing Status")
+    
+    try:
+        jobs_response = requests.get(f"{API_BASE_URL}/pe/jobs")
+        
+        if jobs_response.status_code == 200:
+            jobs_data = jobs_response.json()
+            stats = jobs_data.get('stats', {})
+            pending_jobs = jobs_data.get('pending_jobs', [])
+            
+            # Stats
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("Total Files", stats.get('total_files', 0))
+            with col2:
+                st.metric("Processed", stats.get('processed', 0))
+            with col3:
+                st.metric("Queued", stats.get('queued', 0))
+            with col4:
+                st.metric("Errors", stats.get('errors', 0))
+            
+            # Pending jobs
+            if pending_jobs:
+                st.markdown("**Pending Jobs:**")
+                for job in pending_jobs:
+                    col1, col2, col3 = st.columns([3, 1, 1])
+                    
+                    with col1:
+                        st.text(f"{job['file_name']} ({job['status']})")
+                    
+                    with col2:
+                        if job['status'] == 'ERROR':
+                            if st.button("Retry", key=f"retry_{job['job_id']}"):
+                                try:
+                                    retry_response = requests.post(f"{API_BASE_URL}/pe/retry-job/{job['job_id']}")
+                                    if retry_response.status_code == 200:
+                                        st.success("Job queued for retry")
+                                        st.rerun()
+                                    else:
+                                        st.error("Error retrying job")
+                                except Exception as e:
+                                    st.error(f"Error: {e}")
+                    
+                    with col3:
+                        if job['status'] == 'QUEUED':
+                            st.text("⏳ Queued")
+                        elif job['status'] == 'ERROR':
+                            st.text("❌ Error")
+            else:
+                st.success("✅ All jobs completed successfully")
+    
+    except Exception as e:
+        st.error(f"Error loading job status: {e}")
 
 
 if __name__ == "__main__":

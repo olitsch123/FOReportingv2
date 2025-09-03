@@ -4,9 +4,9 @@ import os, sys, json, re, csv
 import pandas as pd
 from pathlib import Path
 
-SEED_DIR = os.getenv("FIELD_SEED_DIR", "app/pe_docs/seeds")
+SEED_DIR  = os.getenv("FIELD_SEED_DIR", "app/pe_docs/seeds")
 XLSX_NAME = os.getenv("FIELD_SEED_XLSX", "Field Library.xlsx")
-OUT_DIR = "app/pe_docs/mapping"
+OUT_DIR   = "app/pe_docs/mapping"
 
 Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
 
@@ -33,7 +33,7 @@ def seed_from_xlsx(path: str):
         group   = sheet.strip()
         for _, row in df.iterrows():
             name = str(row.get(name_col, "")).strip()
-            if not name: 
+            if not name:
                 continue
             canonical = normalize_name(name)
             f = {
@@ -54,6 +54,7 @@ def seed_from_xlsx(path: str):
     return fields, column_map
 
 def write_bundle(fields, column_map):
+    # field_library.yaml
     yaml = ["version: 1.0", "locales:", "  default_locale: en", "fields:"]
     for f in fields:
         yaml += [
@@ -73,17 +74,19 @@ def write_bundle(fields, column_map):
             yaml.append("    patterns: [" + ", ".join(json.dumps(p) for p in f["patterns"]) + "]")
     Path(OUT_DIR, "field_library.yaml").write_text("\n".join(yaml) + "\n", encoding="utf-8")
 
+    # column_map.csv
     with open(Path(OUT_DIR, "column_map.csv"), "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=["alias","canonical","locale_hint"])
         w.writeheader()
         seen = set()
         for r in column_map:
             key = (r["alias"], r["canonical"])
-            if key in seen: 
+            if key in seen:
                 continue
             seen.add(key)
             w.writerow(r)
 
+    # minimal stubs
     Path(OUT_DIR, "regex_bank.yaml").write_text(
         "dates: ['(?i)\\b\\d{1,2}[./-]\\d{1,2}[./-]\\d{2,4}\\b']\n"
         "currency: ['€','\\$','£']\n"

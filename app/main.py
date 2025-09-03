@@ -21,6 +21,7 @@ from app.services.file_watcher import FileWatcherService
 from app.services.document_service import DocumentService
 from app.services.chat_service import ChatService
 from app.services.vector_service import VectorService
+from app.pe_docs.api import router as pe_router
 
 # Configure logging
 logging.basicConfig(
@@ -75,6 +76,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount PE documents router
+app.include_router(pe_router)
 
 
 # Pydantic models for API
