@@ -28,7 +28,8 @@ class ChatService:
         """Initialize the chat service."""
         self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.vector_service = VectorService()
-        self.model = settings.get("OPENAI_MODEL", "gpt-4-1106-preview")
+        # Use configured LLM model
+        self.model = settings.get("OPENAI_LLM_MODEL", "gpt-4.1")
         self.max_tokens = settings.get("MAX_TOKENS", 4000)
         self.temperature = settings.get("TEMPERATURE", 0.1)
     

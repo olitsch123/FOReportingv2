@@ -20,7 +20,8 @@ class AIClassifier:
     def __init__(self):
         """Initialize the AI classifier."""
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.model = settings.get("OPENAI_MODEL", "gpt-4-1106-preview")
+        # Use configured LLM model for classification
+        self.model = settings.get("OPENAI_LLM_MODEL", "gpt-4.1")
         self.max_tokens = settings.get("MAX_TOKENS", 4000)
         self.temperature = settings.get("TEMPERATURE", 0.1)
         
