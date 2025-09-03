@@ -8,13 +8,29 @@ No stubs, no MVPs—deliver the working product.
 HARD CONSTRAINTS (repo-aware)
 - Entrypoints: Backend `python -m app.main`; Frontend `streamlit run app/frontend/dashboard.py`.
 - Layout: keep `alembic/`, `app/`, `scripts/`, `requirements.txt`, `run.py`, `README.md`.
-- Data stores: Postgres (Alembic migrations), Vector store selectable by env:
-    VECTOR_BACKEND=chroma | openai
-    - chroma  → local persistent dir at CHROMA_DIR
-    - openai  → managed Vector Store (OPENAI_VECTOR_STORE_ID) using OpenAI embeddings
-- File monitoring: watchdog (Windows-safe). Config via `.env` (see env.pe.example).
+- Data stores: Postgres (Alembic migrations), Vector store selectable by config:
+    VECTOR_BACKEND=chroma | openai (in config/runtime.yaml)
+    - chroma  → local persistent dir at CHROMA_DIR (.env)
+    - openai  → managed Vector Store (OPENAI_VECTOR_STORE_ID in .env) using OpenAI embeddings
+- File monitoring: watchdog (Windows-safe). SECRETS in `.env`, settings in `config/runtime.yaml`.
 - Idempotency: SHA-256 file ledger; ON CONFLICT upserts; every fact row has `source_trace` JSON.
-- Default SYNC per-file pipeline; a small worker pool is allowed later via env toggle.
+- Default SYNC per-file pipeline; a small worker pool is allowed later via config toggle.
+
+CONFIGURATION SEPARATION:
+- .env (SECRETS ONLY, git-ignored):
+  * DATABASE_URL (connection string with credentials)
+  * OPENAI_API_KEY (API key)
+  * OPENAI_VECTOR_STORE_ID (vector store ID)
+  * INVESTOR1_PATH, INVESTOR2_PATH (Windows file paths)
+  * CHROMA_DIR (optional local storage path)
+  * PGCLIENTENCODING, PYTHONUTF8 (Windows UTF-8 settings)
+- config/runtime.yaml (NON-SECRETS, version controlled):
+  * vector_backend (chroma/openai)
+  * reporting_ccy (EUR/USD/GBP)
+  * LLM/embedding model names
+  * scoring weights/thresholds/tolerances
+  * ingestion cron schedules
+  * sync_mode settings
 
 TIME‑SERIES & POINT‑IN‑TIME (UPDATED)
 - NAV is stored as **observations** with exact `as_of_date` (and optional `statement_date`, `coverage_start/end`, versioning via `version_no` + `restates_nav_obs_id`).
