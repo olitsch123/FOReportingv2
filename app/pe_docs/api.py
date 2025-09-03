@@ -93,10 +93,18 @@ async def get_nav_bridge(
         sd = datetime.fromisoformat(start_date).date() if start_date else None
         ed = datetime.fromisoformat(end_date).date() if end_date else None
 
+        # Convert fund_id string to UUID if needed, handle gracefully
+        try:
+            import uuid
+            fund_uuid = uuid.UUID(fund_id)
+        except ValueError:
+            # fund_id is not a valid UUID, return empty periods
+            return {"periods": []}
+
         stmt = select(
             func.date_trunc("month", FinancialData.reporting_date).label("period_end"),
             func.max(FinancialData.nav).label("nav_end"),
-        ).where(FinancialData.fund_id == fund_id)
+        ).where(FinancialData.fund_id == fund_uuid)
 
         if sd:
             stmt = stmt.where(FinancialData.reporting_date >= sd)
@@ -132,9 +140,18 @@ async def get_kpis(
             raise HTTPException(status_code=400, detail="fund_id is required")
 
         ad = datetime.fromisoformat(as_of_date) if as_of_date else datetime.utcnow()
+        
+        # Convert fund_id string to UUID if needed, handle gracefully
+        try:
+            import uuid
+            fund_uuid = uuid.UUID(fund_id)
+        except ValueError:
+            # fund_id is not a valid UUID, return empty KPIs
+            return {"tvpi": 0.0, "dpi": 0.0, "rvpi": 0.0, "current_nav": 0.0}
+        
         stmt = (
             select(FinancialData)
-            .where(and_(FinancialData.fund_id == fund_id, FinancialData.reporting_date <= ad))
+            .where(and_(FinancialData.fund_id == fund_uuid, FinancialData.reporting_date <= ad))
             .order_by(FinancialData.reporting_date.desc())
             .limit(1)
         )
