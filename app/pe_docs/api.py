@@ -187,21 +187,55 @@ async def get_jobs(db: Session = Depends(get_db)):
             or 0
         )
 
-        # Sample pending jobs (file paths)
+        # Sample pending jobs (with job_id, file_name, status for frontend)
         pending_rows = db.execute(
-            select(Document.file_path, Document.processing_status)
-            .where(Document.processing_status.in_(["pending", "processing"]))
+            select(Document.id, Document.filename, Document.file_path, Document.processing_status)
+            .where(Document.processing_status.in_(["pending", "processing", "failed"]))
             .order_by(Document.created_at.desc())
             .limit(20)
         ).all()
         pending_jobs = [
-            {"file_path": r.file_path, "status": r.processing_status}
+            {
+                "job_id": str(r.id),
+                "file_name": r.filename,
+                "file_path": r.file_path,
+                "status": r.processing_status.upper()  # frontend expects uppercase
+            }
             for r in pending_rows
         ]
 
         return {"stats": {"total_files": total, "processed": processed, "queued": queued, "errors": errors}, "pending_jobs": pending_jobs}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching jobs: {e}")
+
+
+@router.post("/retry-job/{job_id}")
+async def retry_job(job_id: str, db: Session = Depends(get_db)):
+    """Retry a failed processing job by resetting its status to pending."""
+    try:
+        # Find document by ID and reset processing status
+        stmt = select(Document).where(Document.id == job_id)
+        doc = db.execute(stmt).scalar_one_or_none()
+        
+        if not doc:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        if doc.processing_status != "failed":
+            raise HTTPException(status_code=400, detail="Only failed jobs can be retried")
+        
+        # Reset to pending
+        doc.processing_status = "pending"
+        doc.processing_error = None
+        doc.processed_at = None
+        
+        db.commit()
+        
+        return {"success": True, "message": "Job queued for retry", "job_id": job_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error retrying job: {e}")
 
 
 @router.post("/rag/query")
