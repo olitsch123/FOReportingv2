@@ -181,7 +181,14 @@ class FileWatcherService:
             ]
             
             for folder in folders_to_watch:
-                folder_path = Path(folder)
+                if not folder:
+                    logger.warning("Folder not configured (ENV missing)")
+                    continue
+                try:
+                    folder_path = Path(folder)
+                except (TypeError, ValueError):
+                    logger.warning("Invalid folder path (None or malformed)")
+                    continue
                 if folder_path.exists():
                     self.observer.schedule(
                         self.handler,
@@ -227,7 +234,12 @@ class FileWatcherService:
         ]
         
         for folder in folders_to_scan:
-            folder_path = Path(folder)
+            if not folder:
+                continue
+            try:
+                folder_path = Path(folder)
+            except (TypeError, ValueError):
+                continue
             if not folder_path.exists():
                 continue
             
