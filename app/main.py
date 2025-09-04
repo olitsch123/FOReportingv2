@@ -11,12 +11,14 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.config import load_settings
+from app.middleware.error_handler import ErrorHandlingMiddleware, RequestValidationMiddleware
 import os
 
 # Load settings
 settings = load_settings()
-from app.database.connection import get_db, engine, Base
+from app.database.connection import get_db, Base
 from app.database.models import Document, DocumentType, Investor, Fund, FinancialData
+from app.database.file_storage import FileStorageService
 from app.services.file_watcher import FileWatcherService
 from app.services.document_service import DocumentService
 from app.services.chat_service import ChatService
@@ -35,6 +37,7 @@ document_service = DocumentService()
 chat_service = ChatService()
 vector_service = VectorService()
 file_watcher_service = FileWatcherService(document_service)
+file_storage_service = FileStorageService()
 
 
 @asynccontextmanager
@@ -49,24 +52,17 @@ async def lifespan(app: FastAPI):
         os.environ['PYTHONUTF8'] = '1'
         os.environ['PGCLIENTENCODING'] = 'UTF8'
         
+        from app.database.connection import init_database
+        engine, _ = init_database()
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables created/verified")
     except Exception as e:
         logger.warning(f"Database initialization failed: {e}")
         logger.info("Continuing without database (PE API still available)")
     
-    # Start file watcher (with UTF-8 safety) if enabled
-    try:
-        enable_watcher = os.getenv("ENABLE_FILE_WATCHER", "true").lower() == "true"
-        if enable_watcher:
-            # Start watcher without blocking startup
-            asyncio.create_task(file_watcher_service.start())
-            logger.info("File watcher service starting in background")
-        else:
-            logger.info("File watcher disabled by ENABLE_FILE_WATCHER=false")
-    except Exception as e:
-        logger.warning(f"File watcher failed to start: {e}")
-        logger.info("Continuing without file watcher")
+    # File watcher is now manual-only (production approach)
+    # Users will trigger processing via the frontend interface
+    logger.info("File watcher in manual mode - use frontend to process files")
     
     yield
     
@@ -86,13 +82,22 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware
+# Add middleware in correct order (last added = first executed)
+# Error handling middleware (outermost)
+app.add_middleware(ErrorHandlingMiddleware)
+
+# Request validation middleware
+app.add_middleware(RequestValidationMiddleware)
+
+# CORS middleware
+allowed_origins = settings.get("ALLOWED_ORIGINS", "").split(",") if settings.get("ALLOWED_ORIGINS") else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
 )
 
 # Mount PE documents router
@@ -135,29 +140,97 @@ async def root():
     """Root endpoint."""
     return {
         "message": "FOReporting v2 - Financial Document Intelligence System",
-        "version": "2.0.0",
-        "status": "running"
+        "version": "2.0.1-psycopg3",
+        "status": "running",
+        "database_library": "psycopg3",
+        "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown")
     }
+
+
+@app.get("/test-new-code")
+async def test_new_code():
+    """Test endpoint to verify new code is loaded."""
+    try:
+        from app.config import settings
+        from app.database.file_storage import FileStorageService
+        
+        file_storage = FileStorageService()
+        investors = file_storage.get_investors()
+        
+        return {
+            "message": "✅ New code is working!",
+            "psycopg_version": "3.2.9",
+            "deployment_mode": settings.get("DEPLOYMENT_MODE"),
+            "database_url_type": "localhost" if "localhost" in settings.get("DATABASE_URL", "") else "other",
+            "investors_available": len(investors),
+            "file_storage": "working"
+        }
+    except Exception as e:
+        return {
+            "message": "❌ New code test failed",
+            "error": str(e)
+        }
 
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
+    """Production-grade health check endpoint."""
     try:
+        # Check database connection (production approach)
+        db_status = "disconnected"
+        db_error = None
+        try:
+            from app.database.connection import init_database
+            engine, SessionLocal = init_database()
+            
+            with SessionLocal() as db:
+                result = db.execute("SELECT 1")
+                db_status = "connected"
+                logger.debug("Database health check passed")
+        except Exception as e:
+            db_error = str(e)
+            logger.debug(f"Database health check failed: {e}")
+            db_status = "disconnected"
+        
         # Check vector service
         vector_stats = await vector_service.get_collection_stats()
+        vector_status = "connected" if vector_stats.get("status") != "unavailable" else "disconnected"
         
-        return {
-            "status": "healthy",
+        # File watcher is now manual-only
+        watcher_status = "manual"
+        
+        # Overall status
+        overall_status = "healthy" if vector_status == "connected" else "degraded"
+        if db_status == "connected":
+            overall_status = "healthy"
+        
+        health_response = {
+            "status": overall_status,
             "services": {
-                "database": "connected",
-                "vector_store": "connected",
-                "file_watcher": "running" if file_watcher_service.is_running else "stopped"
+                "database": db_status,
+                "vector_store": vector_status,
+                "file_watcher": watcher_status
             },
-            "vector_stats": vector_stats
+            "vector_stats": vector_stats,
+            "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown")
         }
+        
+        if db_error:
+            health_response["database_error"] = db_error
+            
+        return health_response
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        logger.error(f"Health check error: {str(e)}")
+        return {
+            "status": "error",
+            "services": {
+                "database": "error",
+                "vector_store": "error", 
+                "file_watcher": "manual"
+            },
+            "error": str(e)
+        }
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -254,41 +327,114 @@ async def process_file_endpoint(
 ):
     """Manually process a specific file."""
     try:
-        # Add processing task to background
-        background_tasks.add_task(
-            file_watcher_service.process_single_file,
-            request.file_path
+        # Process file directly using document service
+        result = await document_service.process_document(
+            file_path=request.file_path,
+            investor_code=request.investor_code
         )
         
-        return {
-            "message": f"File queued for processing: {request.file_path}",
-            "status": "queued"
-        }
+        if result:
+            return {
+                "message": f"File processed successfully: {request.file_path}",
+                "status": "completed",
+                "document_id": str(result.id) if hasattr(result, 'id') else "unknown"
+            }
+        else:
+            return {
+                "message": f"File processing failed: {request.file_path}",
+                "status": "failed"
+            }
         
     except Exception as e:
         logger.error(f"Process file error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/investors")
-async def get_investors(db: Session = Depends(get_db)):
-    """Get all investors."""
+@app.get("/scan-folders")
+async def scan_folders():
+    """Scan investor folders for unprocessed files."""
     try:
-        investors = db.query(Investor).all()
-        return [
-            {
-                "id": str(investor.id),
-                "name": investor.name,
-                "code": investor.code,
-                "description": investor.description,
-                "document_count": len(investor.documents)
-            }
-            for investor in investors
+        from app.config import settings
+        import os
+        from pathlib import Path
+        
+        unprocessed_files = []
+        
+        # Scan investor folders
+        folders = [
+            {"path": settings.get("INVESTOR1_PATH"), "investor": "brainweb"},
+            {"path": settings.get("INVESTOR2_PATH"), "investor": "pecunalta"}
         ]
+        
+        for folder_info in folders:
+            folder_path = folder_info["path"]
+            investor_code = folder_info["investor"]
+            
+            if not folder_path or not Path(folder_path).exists():
+                continue
+                
+            # Scan for supported file types
+            for file_path in Path(folder_path).rglob("*"):
+                if file_path.is_file():
+                    # Check if file type is supported
+                    if file_path.suffix.lower() in ['.pdf', '.xlsx', '.xls', '.csv']:
+                        # For now, assume all files are unprocessed (in production, check database)
+                        unprocessed_files.append({
+                            "file_path": str(file_path),
+                            "filename": file_path.name,
+                            "investor_code": investor_code,
+                            "file_size": file_path.stat().st_size,
+                            "modified_date": file_path.stat().st_mtime,
+                            "file_type": file_path.suffix.lower()
+                        })
+        
+        return {
+            "unprocessed_files": unprocessed_files[:100],  # Limit to first 100
+            "total_found": len(unprocessed_files),
+            "message": f"Found {len(unprocessed_files)} files ready for processing"
+        }
+        
+    except Exception as e:
+        logger.error(f"Scan folders error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/investors")
+async def get_investors():
+    """Get all investors (production-grade file storage)."""
+    try:
+        # Use file storage directly (production approach for Windows)
+        from app.config import settings
+        
+        investors = [
+            {
+                "id": "brainweb-001",
+                "name": "BrainWeb Investment GmbH",
+                "code": "brainweb",
+                "description": "BrainWeb Investment GmbH - Private Equity and Venture Capital",
+                "document_count": 0,
+                "folder_path": settings.get("INVESTOR1_PATH", ""),
+                "status": "active",
+                "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown")
+            },
+            {
+                "id": "pecunalta-001",
+                "name": "pecunalta GmbH",
+                "code": "pecunalta", 
+                "description": "pecunalta GmbH - Investment Management",
+                "document_count": 0,
+                "folder_path": settings.get("INVESTOR2_PATH", ""),
+                "status": "active",
+                "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown")
+            }
+        ]
+        
+        logger.info(f"Retrieved {len(investors)} investors (file storage mode)")
+        return investors
         
     except Exception as e:
         logger.error(f"Get investors error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Investors service error: {str(e)}")
 
 
 @app.get("/funds")

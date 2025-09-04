@@ -1,0 +1,20 @@
+[
+  {
+    "id": "brainweb-001",
+    "name": "BrainWeb Investment GmbH",
+    "code": "brainweb",
+    "description": "BrainWeb Investment GmbH - Private Equity and Venture Capital",
+    "folder_path": "",
+    "created_at": "2025-09-03T16:52:44.321106",
+    "status": "active"
+  },
+  {
+    "id": "pecunalta-001",
+    "name": "pecunalta GmbH",
+    "code": "pecunalta",
+    "description": "pecunalta GmbH - Investment Management",
+    "folder_path": "",
+    "created_at": "2025-09-03T16:52:44.321106",
+    "status": "active"
+  }
+]

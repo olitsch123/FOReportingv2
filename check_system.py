@@ -27,7 +27,8 @@ def check_database():
     print("\n🗄️ Checking Database...")
     try:
         from sqlalchemy import create_engine, text
-        url = os.getenv("DATABASE_URL")
+        from app.config import settings
+        url = settings.get("DATABASE_URL")
         if not url:
             print("❌ DATABASE_URL not set")
             return
@@ -129,19 +130,20 @@ def check_config():
     env_file = Path(".env")
     if env_file.exists():
         print("✅ .env file exists")
-        # Check required variables (without printing values)
-        required_vars = ["DATABASE_URL", "INVESTOR1_PATH", "INVESTOR2_PATH"]
-        for var in required_vars:
-            if os.getenv(var):
-                print(f"✅ {var} is set")
+        # Check required variables using settings (without printing values)
+        from app.config import settings
+        required_settings = ["DATABASE_URL", "INVESTOR1_PATH", "INVESTOR2_PATH"]
+        for setting in required_settings:
+            if settings.get(setting):
+                print(f"✅ {setting} is set")
             else:
-                print(f"❌ {var} not set")
+                print(f"❌ {setting} not set")
     else:
         print("❌ .env file missing")
     
     # Check folder paths
-    for i, path_var in enumerate(["INVESTOR1_PATH", "INVESTOR2_PATH"], 1):
-        path = os.getenv(path_var)
+    for i, path_setting in enumerate(["INVESTOR1_PATH", "INVESTOR2_PATH"], 1):
+        path = settings.get(path_setting)
         if path and Path(path).exists():
             print(f"✅ Investor {i} folder exists")
         else:
@@ -179,7 +181,8 @@ def check_vector_store():
     print("\n🔍 Checking Vector Store...")
     try:
         import chromadb
-        chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma/pe_docs")
+        from app.config import settings
+        chroma_dir = settings.get("CHROMA_DIR", "./data/chroma")
         print(f"✅ ChromaDB available")
         print(f"📁 Vector store directory: {chroma_dir}")
         

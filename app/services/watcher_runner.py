@@ -31,6 +31,11 @@ async def main() -> None:
         await watcher.stop()
 
 
-if __name__ == "__main__":
+def run_watcher():
+    """Synchronous entry point for running the watcher."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run_watcher()
 

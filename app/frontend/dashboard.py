@@ -124,6 +124,79 @@ def send_chat_message(message: str, session_id: str = None) -> Dict:
         return {}
 
 
+def process_all_files():
+    """Process all unprocessed files."""
+    if "unprocessed_files" not in st.session_state:
+        st.error("No files to process")
+        return
+    
+    files = st.session_state["unprocessed_files"]
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    for i, file_info in enumerate(files):
+        status_text.text(f"Processing: {file_info['filename']}")
+        
+        # Process file
+        process_result = api_request(
+            "/documents/process",
+            method="POST",
+            json_data={
+                "file_path": file_info["file_path"],
+                "investor_code": file_info["investor_code"]
+            }
+        )
+        
+        if process_result["status"] == "success":
+            st.success(f"✅ Processed: {file_info['filename']}")
+        else:
+            st.error(f"❌ Failed: {file_info['filename']} - {process_result.get('error', 'Unknown error')}")
+        
+        progress_bar.progress((i + 1) / len(files))
+    
+    status_text.text("Processing complete!")
+    # Clear processed files
+    st.session_state["unprocessed_files"] = []
+
+
+def process_selected_files(selected_indices):
+    """Process selected files."""
+    if "unprocessed_files" not in st.session_state:
+        st.error("No files available")
+        return
+    
+    files = st.session_state["unprocessed_files"]
+    selected_files = [files[i] for i in selected_indices]
+    
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    for i, file_info in enumerate(selected_files):
+        status_text.text(f"Processing: {file_info['filename']}")
+        
+        # Process file
+        process_result = api_request(
+            "/documents/process",
+            method="POST",
+            json_data={
+                "file_path": file_info["file_path"],
+                "investor_code": file_info["investor_code"]
+            }
+        )
+        
+        if process_result["status"] == "success":
+            st.success(f"✅ Processed: {file_info['filename']}")
+        else:
+            st.error(f"❌ Failed: {file_info['filename']} - {process_result.get('error', 'Unknown error')}")
+        
+        progress_bar.progress((i + 1) / len(selected_files))
+    
+    status_text.text("Processing complete!")
+    # Remove processed files from the list
+    remaining_files = [f for i, f in enumerate(files) if i not in selected_indices]
+    st.session_state["unprocessed_files"] = remaining_files
+
+
 def render_header():
     """Render the main header."""
     st.markdown('<h1 class="main-header">📊 FOReporting v2</h1>', unsafe_allow_html=True)
@@ -335,6 +408,59 @@ def render_chat_interface():
 def render_documents():
     """Render the documents page."""
     st.header("📄 Document Management")
+    
+    # Manual File Processing Section
+    with st.expander("🔄 Manual File Processing", expanded=True):
+        st.subheader("Scan & Process Files")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🔍 Scan Folders", type="primary"):
+                with st.spinner("Scanning investor folders..."):
+                    scan_result = api_request("/scan-folders")
+                    
+                    if scan_result["status"] == "success":
+                        data = scan_result["data"]
+                        st.success(f"✅ {data['message']}")
+                        
+                        if data["unprocessed_files"]:
+                            st.session_state["unprocessed_files"] = data["unprocessed_files"]
+                        else:
+                            st.info("No unprocessed files found")
+                    else:
+                        st.error(f"❌ Scan failed: {scan_result['error']}")
+        
+        with col2:
+            if "unprocessed_files" in st.session_state and st.session_state["unprocessed_files"]:
+                if st.button("🚀 Process All Files", type="secondary"):
+                    process_all_files()
+    
+    # Show unprocessed files if available
+    if "unprocessed_files" in st.session_state and st.session_state["unprocessed_files"]:
+        st.subheader("📁 Unprocessed Files")
+        
+        files_df = pd.DataFrame(st.session_state["unprocessed_files"])
+        files_df["file_size_mb"] = (files_df["file_size"] / 1024 / 1024).round(2)
+        files_df["modified_date"] = pd.to_datetime(files_df["modified_date"], unit='s')
+        
+        # File selection and processing
+        selected_files = st.dataframe(
+            files_df[["filename", "investor_code", "file_type", "file_size_mb", "modified_date"]],
+            use_container_width=True,
+            selection_mode="multi-index"
+        )
+        
+        if st.button("🔄 Process Selected Files"):
+            if hasattr(selected_files, "selection") and selected_files.selection.rows:
+                process_selected_files(selected_files.selection.rows)
+            else:
+                st.warning("Please select files to process")
+    
+    st.markdown("---")
+    
+    # Existing Documents Section
+    st.subheader("📚 Processed Documents")
     
     # Filters
     col1, col2, col3 = st.columns(3)

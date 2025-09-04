@@ -10,7 +10,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database.connection import engine, Base, get_db_session
 from app.database.models import Investor
-from app.config import INVESTOR_FOLDERS
+from app.config import settings
 
 
 def create_tables():
@@ -29,13 +29,13 @@ def create_investors():
             "name": "BrainWeb Investment GmbH",
             "code": "brainweb",
             "description": "BrainWeb Investment GmbH - Private Equity and Venture Capital",
-            "folder_path": INVESTOR_FOLDERS.get("brainweb", "")
+            "folder_path": settings.get("INVESTOR1_PATH", "")
         },
         {
             "name": "pecunalta GmbH",
             "code": "pecunalta",
             "description": "pecunalta GmbH - Investment Management",
-            "folder_path": INVESTOR_FOLDERS.get("pecunalta", "")
+            "folder_path": settings.get("INVESTOR2_PATH", "")
         }
     ]
     
