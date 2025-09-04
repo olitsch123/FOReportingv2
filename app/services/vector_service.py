@@ -26,7 +26,7 @@ class VectorService:
         
         # Initialize ChromaDB with error handling to prevent crash-loop
         try:
-            chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma/pe_docs")
+            chroma_dir = os.getenv("CHROMA_DIR", "./data/chroma")
             self.chroma_client = chromadb.PersistentClient(
                 path=chroma_dir,
                 settings=Settings(

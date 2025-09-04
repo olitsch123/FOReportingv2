@@ -46,7 +46,7 @@ def upgrade() -> None:
         sa.Column("path", sa.Text),
         sa.Column("mime", sa.String(100)),
         sa.Column("pages", sa.Integer),
-        sa.Column("ocr_used", sa.Boolean, server_default=sa.text("0")),
+        sa.Column("ocr_used", sa.Boolean, server_default=sa.text("false")),
         sa.Column("source_trace", sa.JSON),
         sa.Column("created_at", sa.DateTime, server_default=sa.text("CURRENT_TIMESTAMP")),
     )

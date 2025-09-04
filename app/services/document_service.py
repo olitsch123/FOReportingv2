@@ -16,6 +16,7 @@ from app.database.models import (
 from app.processors.processor_factory import ProcessorFactory
 from app.processors.base import ProcessedDocument
 from app.services.vector_service import VectorService
+from app.pe_docs.extractors.multi_method import MultiMethodExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class DocumentService:
         """Initialize the document service."""
         self.processor_factory = ProcessorFactory()
         self.vector_service = VectorService()
+        self.pe_extractor = MultiMethodExtractor()
     
     async def process_document(self, file_path: str, investor_code: str) -> Optional[Document]:
         """Process a document and store it in the database."""
@@ -109,6 +111,52 @@ class DocumentService:
                     
                     db.commit()
                     db.refresh(document)
+                
+                # For PE documents, use enhanced multi-method extraction
+                if document.document_type in ['quarterly_report', 'capital_account_statement', 
+                                             'capital_call_notice', 'distribution_notice']:
+                    try:
+                        # Get tables from processed doc if available
+                        tables = processed_doc.structured_data.get('tables', []) if processed_doc.structured_data else []
+                        
+                        # Prepare metadata
+                        doc_metadata = {
+                            'doc_id': str(document.id),
+                            'doc_type': document.document_type,
+                            'filename': document.filename,
+                            'fund_id': str(document.fund_id) if document.fund_id else None,
+                            'investor_id': str(document.investor_id),
+                            'period_end': document.reporting_date,
+                            'as_of_date': document.reporting_date
+                        }
+                        
+                        # Run PE extraction
+                        pe_result = await self.pe_extractor.process_document(
+                            file_path=file_path,
+                            text=processed_doc.raw_text,
+                            tables=tables,
+                            doc_metadata=doc_metadata
+                        )
+                        
+                        # Update document with PE extraction results
+                        if pe_result['status'] == 'success':
+                            document.structured_data = {
+                                **(document.structured_data or {}),
+                                'pe_extraction': pe_result['extracted_data'],
+                                'validation': pe_result['validation'],
+                                'extraction_confidence': pe_result['overall_confidence']
+                            }
+                            db.commit()
+                            
+                            logger.info(
+                                f"PE extraction completed for {file_path}. "
+                                f"Confidence: {pe_result['overall_confidence']:.2f}, "
+                                f"Requires review: {pe_result['requires_review']}"
+                            )
+                        
+                    except Exception as e:
+                        logger.error(f"PE extraction failed for {file_path}: {e}")
+                        # Continue with regular processing even if PE extraction fails
                 
                 # Extract and store financial data
                 await self._extract_and_store_financial_data(document_id, processed_doc)
@@ -195,20 +243,20 @@ class DocumentService:
     
     def _get_investor_data(self, investor_code: str) -> Optional[Dict[str, Any]]:
         """Get investor data by code."""
-        from app.config import INVESTOR_FOLDERS
+        from app.config import settings
         
         investor_configs = {
             "brainweb": {
                 "name": "BrainWeb Investment GmbH",
                 "code": "brainweb",
                 "description": "BrainWeb Investment GmbH - Private Equity and Venture Capital",
-                "folder_path": INVESTOR_FOLDERS.get("brainweb", "")
+                "folder_path": settings.get("INVESTOR1_PATH", "")
             },
             "pecunalta": {
                 "name": "pecunalta GmbH",
                 "code": "pecunalta", 
                 "description": "pecunalta GmbH - Investment Management",
-                "folder_path": INVESTOR_FOLDERS.get("pecunalta", "")
+                "folder_path": settings.get("INVESTOR2_PATH", "")
             }
         }
         
@@ -335,35 +383,52 @@ class DocumentService:
             # Split text into chunks
             chunks = self._split_text_into_chunks(text)
             
-            with get_db_session() as db:
-                # Remove existing embeddings
-                db.query(DocumentEmbedding).filter(
-                    DocumentEmbedding.document_id == document_id
-                ).delete()
-                
-                # Create new embeddings
-                for i, chunk in enumerate(chunks):
+            # Create embeddings in vector store (independent of database)
+            embeddings_created = 0
+            for i, chunk in enumerate(chunks):
+                try:
                     # Create embedding in vector store
                     embedding_id = await self.vector_service.add_document(
                         document_id=str(document_id),
                         text=chunk,
                         metadata={
                             'document_id': str(document_id),
-                            'chunk_index': i
+                            'chunk_index': i,
+                            'file_path': getattr(self, '_current_file_path', 'unknown')
                         }
                     )
                     
                     if embedding_id:
-                        # Store embedding metadata in database
+                        embeddings_created += 1
+                        logger.debug(f"Created embedding {i+1}/{len(chunks)} for document {document_id}")
+                except Exception as embed_error:
+                    logger.warning(f"Failed to create embedding for chunk {i}: {embed_error}")
+            
+            logger.info(f"Created {embeddings_created}/{len(chunks)} embeddings for document {document_id}")
+            
+            # Try to store embedding metadata in database (optional)
+            try:
+                with get_db_session() as db:
+                    # Remove existing embeddings
+                    db.query(DocumentEmbedding).filter(
+                        DocumentEmbedding.document_id == document_id
+                    ).delete()
+                    
+                    # Store embedding metadata
+                    for i in range(embeddings_created):
                         doc_embedding = DocumentEmbedding(
                             document_id=document_id,
                             chunk_index=i,
-                            chunk_text=chunk,
-                            embedding_id=embedding_id
+                            chunk_text=chunks[i] if i < len(chunks) else "",
+                            embedding_id=f"chunk_{i}"  # Placeholder since we don't have the actual ID
                         )
                         db.add(doc_embedding)
-                
-                db.commit()
+                    
+                    db.commit()
+                    logger.debug(f"Stored embedding metadata in database for document {document_id}")
+            except Exception as db_error:
+                logger.warning(f"Could not store embedding metadata in database: {db_error}")
+                # Continue anyway - vector embeddings are still created
                 
         except Exception as e:
             logger.error(f"Error creating embeddings for document {document_id}: {str(e)}")
