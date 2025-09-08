@@ -1,11 +1,11 @@
 """Base document processor interface."""
 
-from abc import ABC, abstractmethod
-from pathlib import Path
-from typing import Dict, Any, Optional, List
 import hashlib
 import mimetypes
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from app.database.models import DocumentType
 

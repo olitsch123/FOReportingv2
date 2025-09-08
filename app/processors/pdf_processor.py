@@ -1,16 +1,16 @@
 """PDF document processor."""
 
 import re
-from typing import Dict, Any, List
 from pathlib import Path
+from typing import Any, Dict, List
 
 try:
     import PyPDF2
 except ImportError:
     PyPDF2 = None
 
-from app.processors.base import DocumentProcessor
 from app.processors.ai_classifier import AIClassifier
+from app.processors.base import DocumentProcessor
 
 
 class PDFProcessor(DocumentProcessor):

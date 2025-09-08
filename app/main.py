@@ -1,29 +1,39 @@
 """Main FastAPI application."""
 
 import asyncio
+import csv
+import io
+import json
 import logging
+import os
 from contextlib import asynccontextmanager
-from typing import List, Optional, Dict, Any
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.config import load_settings
-from app.middleware.error_handler import ErrorHandlingMiddleware, RequestValidationMiddleware
-import os
+from app.middleware.error_handler import (
+    ErrorHandlingMiddleware,
+    RequestValidationMiddleware,
+)
 
 # Load settings
 settings = load_settings()
-from app.database.connection import get_db, Base
-from app.database.models import Document, DocumentType, Investor, Fund, FinancialData
+from app.database.connection import Base, get_db
 from app.database.file_storage import FileStorageService
-from app.services.file_watcher import FileWatcherService
-from app.services.document_service import DocumentService
-from app.services.chat_service import ChatService
-from app.services.vector_service import VectorService
+from app.database.models import Document, DocumentType, FinancialData, Fund, Investor
 from app.pe_docs.api import router as pe_router
+from app.security import RequireAPIKey
+from app.services.chat_service import ChatService
+from app.services.document_service import DocumentService
+from app.services.file_watcher import FileWatcherService
+from app.services.vector_service import VectorService
 
 # Configure logging
 logging.basicConfig(
@@ -60,9 +70,9 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Database initialization failed: {e}")
         logger.info("Continuing without database (PE API still available)")
     
-    # File watcher is now manual-only (production approach)
-    # Users will trigger processing via the frontend interface
-    logger.info("File watcher in manual mode - use frontend to process files")
+    # File watcher can be controlled via API
+    # Start in stopped mode, users can enable via frontend
+    logger.info("File watcher initialized (stopped) - control via API/frontend")
     
     yield
     
@@ -76,10 +86,63 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="FOReporting v2",
-    description="Financial Document Intelligence System",
-    version="2.0.0",
-    lifespan=lifespan
+    title="FOReporting v2 - Financial Document Intelligence",
+    description="""
+    **Enterprise-grade financial document processing system for Private Equity funds.**
+    
+    ## Features
+    - 🤖 **AI-Powered Extraction**: OpenAI-based document classification and data extraction
+    - 📊 **PE Analytics**: Capital accounts, NAV analysis, performance metrics
+    - 🔍 **Semantic Search**: Vector-based document search and RAG queries  
+    - 📈 **Time Series Analysis**: Historical performance tracking and forecasting
+    - 🔄 **Data Reconciliation**: Automated validation and discrepancy detection
+    - 🛡️ **Enterprise Security**: Input validation, rate limiting, audit trail
+    
+    ## Architecture
+    - **Backend**: FastAPI with async processing
+    - **Database**: PostgreSQL with SQLAlchemy ORM
+    - **AI/ML**: OpenAI GPT-4, ChromaDB vector store
+    - **Frontend**: Streamlit dashboard with Plotly charts
+    - **Monitoring**: Prometheus metrics, Grafana dashboards
+    
+    ## API Documentation
+    - 📋 **Main API**: Core document processing and management
+    - 🏦 **PE API**: Private equity specific functionality (`/pe/*`)
+    - 💬 **Chat API**: Natural language querying (`/chat`)
+    - 📊 **Analytics**: Performance metrics and reporting
+    
+    For detailed implementation guide, see: [Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)
+    """,
+    version="2.0.1-production",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_tags=[
+        {
+            "name": "System",
+            "description": "System health, status, and configuration endpoints"
+        },
+        {
+            "name": "Documents", 
+            "description": "Document processing, management, and retrieval"
+        },
+        {
+            "name": "PE Documents",
+            "description": "Private equity specific document processing and analytics"
+        },
+        {
+            "name": "Analytics",
+            "description": "Performance analytics, NAV analysis, and reporting"
+        },
+        {
+            "name": "Chat",
+            "description": "AI-powered natural language querying of financial data"
+        },
+        {
+            "name": "File Watcher",
+            "description": "File monitoring and automated processing controls"
+        }
+    ]
 )
 
 # Add middleware in correct order (last added = first executed)
@@ -99,6 +162,13 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Request-ID"],
 )
+
+# Setup instrumentation
+try:
+    from app.instrumentation.metrics import setup_metrics
+    setup_metrics(app)
+except ImportError:
+    logger.warning("Prometheus instrumentation not available")
 
 # Mount PE documents router
 app.include_router(pe_router)
@@ -135,15 +205,46 @@ class ProcessFileRequest(BaseModel):
 
 
 # API Routes
-@app.get("/")
+@app.get("/", tags=["System"])
 async def root():
-    """Root endpoint."""
+    """
+    Root endpoint - System information and status.
+    
+    Returns basic system information including version, status, and configuration.
+    Use this endpoint to verify the API is running and accessible.
+    
+    **Example Response:**
+    ```json
+    {
+        "message": "FOReporting v2 - Financial Document Intelligence System",
+        "version": "2.0.1-production",
+        "status": "running",
+        "features": ["ai_extraction", "pe_analytics", "monitoring"],
+        "deployment_mode": "production"
+    }
+    ```
+    """
     return {
         "message": "FOReporting v2 - Financial Document Intelligence System",
-        "version": "2.0.1-psycopg3",
+        "version": "2.0.1-production",
         "status": "running",
+        "features": [
+            "ai_extraction",
+            "pe_analytics", 
+            "semantic_search",
+            "time_series_analysis",
+            "reconciliation",
+            "monitoring",
+            "security_hardened"
+        ],
         "database_library": "psycopg3",
-        "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown")
+        "deployment_mode": settings.get("DEPLOYMENT_MODE", "unknown"),
+        "documentation": {
+            "api_docs": "/docs",
+            "redoc": "/redoc", 
+            "implementation_guide": "/docs/IMPLEMENTATION_GUIDE.md",
+            "security_audit": "/docs/SECURITY_AUDIT.md"
+        }
     }
 
 
@@ -184,7 +285,8 @@ async def health_check():
             engine, SessionLocal = init_database()
             
             with SessionLocal() as db:
-                result = db.execute("SELECT 1")
+                from sqlalchemy import text
+                result = db.execute(text("SELECT 1"))
                 db_status = "connected"
                 logger.debug("Database health check passed")
         except Exception as e:
@@ -196,8 +298,8 @@ async def health_check():
         vector_stats = await vector_service.get_collection_stats()
         vector_status = "connected" if vector_stats.get("status") != "unavailable" else "disconnected"
         
-        # File watcher is now manual-only
-        watcher_status = "manual"
+        # File watcher status
+        watcher_status = "running" if file_watcher_service.is_running else "stopped"
         
         # Overall status
         overall_status = "healthy" if vector_status == "connected" else "degraded"
@@ -233,7 +335,7 @@ async def health_check():
         }
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post("/chat", response_model=ChatResponse, dependencies=[RequireAPIKey])
 async def chat_endpoint(request: ChatRequest):
     """Chat with the financial AI assistant."""
     try:
@@ -320,17 +422,34 @@ async def get_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/documents/process")
+@app.post("/documents/process", dependencies=[RequireAPIKey])
 async def process_file_endpoint(
     request: ProcessFileRequest,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    http_request: Request = None
 ):
-    """Manually process a specific file."""
+    """Manually process a specific file with security validation."""
     try:
-        # Process file directly using document service
-        result = await document_service.process_document(
+        # Import security utilities
+        from app.security.validators import validate_processing_request
+        from app.security.config import security_config
+        from app.security.rate_limiter import check_processing_rate_limit
+        
+        # Apply rate limiting
+        if http_request:
+            check_processing_rate_limit(http_request)
+        
+        # Validate inputs with security checks
+        validated_path, validated_investor = validate_processing_request(
             file_path=request.file_path,
-            investor_code=request.investor_code
+            investor_code=request.investor_code,
+            allowed_paths=security_config.get_allowed_file_paths()
+        )
+        
+        # Process file with validated inputs
+        result = await document_service.process_document(
+            file_path=validated_path,
+            investor_code=validated_investor
         )
         
         if result:
@@ -350,13 +469,161 @@ async def process_file_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/folder-tree")
+async def get_folder_tree():
+    """Get actual Windows directory tree structure."""
+    try:
+        from pathlib import Path
+
+        from app.config import settings
+        
+        def build_directory_tree(base_path: str, investor_name: str, max_depth: int = 3) -> dict:
+            """Build a proper directory tree structure."""
+            path = Path(base_path)
+            if not path.exists():
+                return {"name": investor_name, "type": "investor", "children": [], "error": "Path not found"}
+            
+            tree = {
+                "name": investor_name,
+                "type": "investor", 
+                "path": str(path),
+                "children": []
+            }
+            
+            try:
+                # Scan immediate subdirectories (funds)
+                for fund_dir in sorted(path.iterdir()):
+                    if not fund_dir.is_dir():
+                        continue
+                    
+                    # Skip excluded folders
+                    if fund_dir.name.startswith('!'):
+                        continue
+                    
+                    fund_node = {
+                        "name": fund_dir.name,
+                        "type": "fund",
+                        "path": str(fund_dir),
+                        "children": []
+                    }
+                    
+                    # Scan fund subfolders
+                    try:
+                        for subfolder in sorted(fund_dir.iterdir()):
+                            if not subfolder.is_dir():
+                                continue
+                            
+                            # Skip excluded subfolders
+                            if subfolder.name.startswith('!'):
+                                continue
+                            
+                            # Count files in subfolder
+                            file_count = 0
+                            file_types = {}
+                            
+                            for file_path in subfolder.rglob("*"):
+                                if file_path.is_file():
+                                    # Apply exclusion rules
+                                    if file_path.suffix.lower() == '.py':
+                                        continue
+                                    if file_path.name.endswith('_Fund_Documents.xlsx') and '[' in file_path.name:
+                                        continue
+                                    
+                                    # Skip files in excluded folders
+                                    skip_file = False
+                                    for parent in file_path.parents:
+                                        if parent.name.startswith('!'):
+                                            skip_file = True
+                                            break
+                                    if skip_file:
+                                        continue
+                                    
+                                    if file_path.suffix.lower() in ['.pdf', '.xlsx', '.xls', '.csv', '.docx']:
+                                        file_count += 1
+                                        ext = file_path.suffix.lower()
+                                        file_types[ext] = file_types.get(ext, 0) + 1
+                            
+                            # Get processing status for this subfolder
+                            processed_count = 0
+                            try:
+                                # Quick check of document tracker for this path
+                                from app.database.connection import get_db_session
+                                with get_db_session() as db:
+                                    from sqlalchemy import text
+                                    result = db.execute(text("""
+                                        SELECT COUNT(*) FROM document_tracker 
+                                        WHERE file_path LIKE :path AND status = 'completed'
+                                    """), {"path": f"{str(subfolder)}%"}).scalar()
+                                    processed_count = result or 0
+                            except:
+                                processed_count = 0
+                            
+                            # Determine status
+                            if processed_count == 0:
+                                status = "ready"
+                            elif processed_count >= file_count:
+                                status = "completed"
+                            else:
+                                status = "mixed"
+                            
+                            subfolder_node = {
+                                "name": subfolder.name,
+                                "type": "subfolder",
+                                "path": str(subfolder),
+                                "file_count": file_count,
+                                "processed_count": processed_count,
+                                "file_types": file_types,
+                                "processing_status": status,
+                                "children": []
+                            }
+                            
+                            fund_node["children"].append(subfolder_node)
+                        
+                        # Calculate total files for fund
+                        fund_file_count = sum(child["file_count"] for child in fund_node["children"])
+                        fund_node["file_count"] = fund_file_count
+                        
+                    except PermissionError:
+                        fund_node["error"] = "Permission denied"
+                    
+                    tree["children"].append(fund_node)
+                
+            except PermissionError:
+                tree["error"] = "Permission denied"
+            
+            return tree
+        
+        # Build trees for both investors
+        investor_trees = []
+        
+        investor_paths = [
+            {"path": settings.get("INVESTOR1_PATH"), "name": "BrainWeb Investment"},
+            {"path": settings.get("INVESTOR2_PATH"), "name": "Pecunalta"}
+        ]
+        
+        for investor_info in investor_paths:
+            if investor_info["path"]:
+                tree = build_directory_tree(investor_info["path"], investor_info["name"])
+                investor_trees.append(tree)
+        
+        return {
+            "investors": investor_trees,
+            "total_investors": len(investor_trees)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error building folder tree: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/scan-folders")
 async def scan_folders():
     """Scan investor folders for unprocessed files."""
     try:
-        from app.config import settings
         import os
         from pathlib import Path
+
+        from app.config import settings
         
         unprocessed_files = []
         
@@ -376,6 +643,24 @@ async def scan_folders():
             # Scan for supported file types
             for file_path in Path(folder_path).rglob("*"):
                 if file_path.is_file():
+                    # Apply exclusion rules
+                    # 1. Skip Python scripts
+                    if file_path.suffix.lower() == '.py':
+                        continue
+                    
+                    # 2. Skip files matching [Date]_Fund_Documents.xlsx pattern
+                    if file_path.name.endswith('_Fund_Documents.xlsx') and '[' in file_path.name:
+                        continue
+                    
+                    # 3. Skip files in folders starting with "!"
+                    skip_file = False
+                    for parent in file_path.parents:
+                        if parent.name.startswith('!'):
+                            skip_file = True
+                            break
+                    if skip_file:
+                        continue
+                    
                     # Check if file type is supported
                     if file_path.suffix.lower() in ['.pdf', '.xlsx', '.xls', '.csv']:
                         # For now, assume all files are unprocessed (in production, check database)
@@ -528,6 +813,320 @@ async def search_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/file-watcher/start")
+async def start_file_watcher():
+    """Start the file watcher service."""
+    try:
+        if not file_watcher_service.is_running:
+            await file_watcher_service.start()
+            return {"status": "started", "message": "File watcher started successfully"}
+        else:
+            return {"status": "already_running", "message": "File watcher is already running"}
+    except Exception as e:
+        logger.error(f"Failed to start file watcher: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/file-watcher/stop")
+async def stop_file_watcher():
+    """Stop the file watcher service."""
+    try:
+        if file_watcher_service.is_running:
+            await file_watcher_service.stop()
+            return {"status": "stopped", "message": "File watcher stopped successfully"}
+        else:
+            return {"status": "already_stopped", "message": "File watcher is not running"}
+    except Exception as e:
+        logger.error(f"Failed to stop file watcher: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/file-watcher/status")
+async def get_file_watcher_status():
+    """Get the status of the file watcher service."""
+    try:
+        watched_folders = []
+        discovered_files = []
+        scan_errors = []
+        
+        # Get configured paths 
+        investor1_path = settings.get("INVESTOR1_PATH", "")
+        investor2_path = settings.get("INVESTOR2_PATH", "")
+        
+        # Note: The paths are already correct in the environment
+        # The issue is JSON encoding in the response
+        
+        folders_config = [
+            {"name": "Investor 1", "path": investor1_path},
+            {"name": "Investor 2", "path": investor2_path}
+        ]
+        
+        for folder_info in folders_config:
+            if folder_info["path"]:
+                try:
+                    path = Path(folder_info["path"])
+                    exists = path.exists()
+                    file_count = 0
+                    
+                    if exists:
+                        # Count supported files (whether running or not)
+                        extensions = ['.pdf', '.xlsx', '.xls', '.csv', '.txt', '.docx']
+                        for ext in extensions:
+                            files = list(path.rglob(f"*{ext}"))
+                            file_count += len(files)
+                            # Log for debugging
+                            if files and not discovered_files:
+                                logger.info(f"Found {len(files)} {ext} files in {folder_info['name']}")
+                    
+                    watched_folders.append({
+                        "name": folder_info["name"],
+                        "path": str(path),
+                        "exists": exists,
+                        "file_count": file_count
+                    })
+                except Exception as e:
+                    scan_errors.append(f"{folder_info['name']}: {str(e)}")
+        
+        # Get recent discoveries from queue
+        if file_watcher_service.is_running and hasattr(file_watcher_service.handler, 'file_timestamps'):
+            recent_files = sorted(
+                file_watcher_service.handler.file_timestamps.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )[:10]  # Last 10 files
+            
+            discovered_files = [
+                {
+                    "path": Path(file_path).name,
+                    "timestamp": timestamp.isoformat(),
+                    "status": "queued" if file_path in file_watcher_service.handler.processing_queue else "processed"
+                }
+                for file_path, timestamp in recent_files
+            ]
+        
+        response_data = {
+            "is_running": file_watcher_service.is_running,
+            "watched_folders": watched_folders,
+            "queue_size": len(file_watcher_service.handler.processing_queue) if file_watcher_service.is_running else 0,
+            "discovered_files": discovered_files,
+            "scan_errors": scan_errors,
+            "total_files_found": sum(f["file_count"] for f in watched_folders)
+        }
+        
+        # Return with proper UTF-8 encoding
+        return JSONResponse(
+            content=response_data,
+            media_type="application/json; charset=utf-8"
+        )
+    except Exception as e:
+        logger.error(f"Failed to get file watcher status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/file-watcher/scan")
+async def trigger_file_scan(background_tasks: BackgroundTasks):
+    """Manually trigger a scan of watched folders."""
+    try:
+        if not file_watcher_service.is_running:
+            # Start temporarily for scan
+            await file_watcher_service.start()
+            scan_started = True
+        else:
+            scan_started = False
+        
+        # Get folders  
+        investor1_path = settings.get("INVESTOR1_PATH", "")
+        investor2_path = settings.get("INVESTOR2_PATH", "")
+        
+        scan_results = {
+            "folders_scanned": [],
+            "files_discovered": 0,
+            "errors": []
+        }
+        
+        folders = [
+            {"name": "Investor 1", "path": investor1_path},
+            {"name": "Investor 2", "path": investor2_path}
+        ]
+        
+        for folder_info in folders:
+            if folder_info["path"]:
+                try:
+                    path = Path(folder_info["path"])
+                    if path.exists():
+                        file_count = 0
+                        extensions = ['.pdf', '.xlsx', '.xls', '.csv', '.txt', '.docx']
+                        
+                        for ext in extensions:
+                            # Skip Python files
+                            if ext.lower() == '.py':
+                                continue
+                                
+                            files = list(path.rglob(f"*{ext}"))
+                            
+                            # Apply exclusion rules to each file
+                            filtered_files = []
+                            for file_path in files:
+                                # Skip files matching [Date]_Fund_Documents.xlsx pattern
+                                if file_path.name.endswith('_Fund_Documents.xlsx') and '[' in file_path.name:
+                                    continue
+                                
+                                # Skip files in folders starting with "!"
+                                skip_file = False
+                                for parent in file_path.parents:
+                                    if parent.name.startswith('!'):
+                                        skip_file = True
+                                        break
+                                if skip_file:
+                                    continue
+                                    
+                                filtered_files.append(file_path)
+                            
+                            file_count += len(filtered_files)
+                        
+                        scan_results["folders_scanned"].append({
+                            "name": folder_info["name"],
+                            "path": str(path),
+                            "files_found": file_count
+                        })
+                        scan_results["files_discovered"] += file_count
+                    else:
+                        scan_results["errors"].append(f"{folder_info['name']}: Folder does not exist")
+                except Exception as e:
+                    scan_results["errors"].append(f"{folder_info['name']}: {str(e)}")
+        
+        # If we started the watcher just for scan, schedule to stop it
+        if scan_started:
+            background_tasks.add_task(stop_watcher_after_scan)
+        
+        return {
+            "status": "scan_completed",
+            "results": scan_results,
+            "message": f"Discovered {scan_results['files_discovered']} files in {len(scan_results['folders_scanned'])} folders"
+        }
+    except Exception as e:
+        logger.error(f"Failed to trigger scan: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def stop_watcher_after_scan():
+    """Stop file watcher after manual scan completes."""
+    await asyncio.sleep(5)  # Give time for processing
+    if file_watcher_service.is_running:
+        await file_watcher_service.stop()
+
+
+# Document Tracker endpoints
+@app.get("/document-tracker/stats")
+async def get_document_tracker_stats(db: Session = Depends(get_db)):
+    """Get document tracking statistics."""
+    try:
+        from app.database.document_tracker import DocumentTrackerService
+        tracker_service = DocumentTrackerService(db)
+        stats = tracker_service.get_processing_stats()
+        return stats
+    except Exception as e:
+        logger.error(f"Failed to get tracker stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/document-tracker/export")
+async def export_document_tracker(
+    status: Optional[str] = None,
+    format: str = "csv",
+    db: Session = Depends(get_db)
+):
+    """Export document tracking data as CSV."""
+    try:
+        from app.database.document_tracker import DocumentTrackerService
+        tracker_service = DocumentTrackerService(db)
+        documents = tracker_service.get_documents_for_export(status=status)
+        
+        if format == "json":
+            return JSONResponse(content=documents)
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        
+        if documents:
+            fieldnames = documents[0].keys()
+            writer = csv.DictWriter(output, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(documents)
+        else:
+            # Empty CSV with headers
+            fieldnames = ['id', 'file_name', 'file_path', 'file_hash', 'status', 
+                         'first_seen', 'last_processed', 'error_message']
+            writer = csv.DictWriter(output, fieldnames=fieldnames)
+            writer.writeheader()
+        
+        # Return as streaming response
+        output.seek(0)
+        filename = f"document_tracker_{status or 'all'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Failed to export document tracker: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/document-tracker/reprocess/{file_hash}", dependencies=[RequireAPIKey])
+async def reprocess_document(
+    file_hash: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    """Mark a document for reprocessing."""
+    try:
+        from app.database.document_tracker import (
+            DocumentTracker,
+            DocumentTrackerService,
+        )
+
+        # Find the document
+        doc = db.query(DocumentTracker).filter_by(file_hash=file_hash).first()
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Mark as discovered to trigger reprocessing
+        doc.status = 'discovered'
+        doc.error_message = None
+        db.commit()
+        
+        # If file watcher is running, it will pick it up
+        # Otherwise, trigger manual processing
+        if not file_watcher_service.is_running:
+            background_tasks.add_task(process_single_file, doc.file_path)
+        
+        return {
+            "status": "queued",
+            "file_hash": file_hash,
+            "file_name": doc.file_name,
+            "message": "Document queued for reprocessing"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to reprocess document: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def process_single_file(file_path: str):
+    """Process a single file in the background."""
+    try:
+        # Use the file watcher's process method
+        if hasattr(file_watcher_service, 'handler'):
+            await file_watcher_service.handler._process_file(file_path)
+    except Exception as e:
+        logger.error(f"Failed to process file {file_path}: {e}")
+
+
 @app.get("/stats")
 async def get_system_stats():
     """Get system statistics."""
@@ -585,7 +1184,8 @@ async def get_system_stats():
             },
             "vector_store": vector_stats,
             "file_watcher": {
-                "status": "running" if hasattr(file_watcher_service, 'is_running') and file_watcher_service.is_running else "stopped"
+                "status": "running" if file_watcher_service.is_running else "stopped",
+                "watched_folders": len([f for f in [settings.get("INVESTOR1_PATH"), settings.get("INVESTOR2_PATH")] if f]) if file_watcher_service.is_running else 0
             },
             "pe_system": {
                 "status": "operational",

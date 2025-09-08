@@ -1,16 +1,16 @@
 """Initialize the database with sample data."""
 
 import asyncio
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the parent directory to Python path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from app.database.connection import engine, Base, get_db_session
-from app.database.models import Investor
 from app.config import settings
+from app.database.connection import Base, engine, get_db_session
+from app.database.models import Investor
 
 
 def create_tables():

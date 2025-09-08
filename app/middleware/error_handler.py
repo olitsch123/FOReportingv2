@@ -4,12 +4,15 @@ import time
 import traceback
 import uuid
 from typing import Callable
-from fastapi import Request, Response, HTTPException
+
+from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
+from sqlalchemy.exc import DatabaseError, IntegrityError
 from starlette.middleware.base import BaseHTTPMiddleware
 from structlog import get_logger
-from sqlalchemy.exc import DatabaseError, IntegrityError
-from pydantic import ValidationError
+
+from app.exceptions import FOReportingError, handle_database_error, handle_api_error
 
 logger = get_logger()
 
@@ -94,6 +97,37 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 },
                 headers={"X-Request-ID": request_id}
             )
+        
+        except FOReportingError as e:
+            # Handle our custom exceptions
+            process_time = time.time() - start_time
+            
+            # Determine appropriate HTTP status code
+            status_code = self._get_status_code_for_error(e)
+            
+            logger.error(
+                "forreporting_error",
+                request_id=request_id,
+                method=request.method,
+                path=request.url.path,
+                error_type=e.__class__.__name__,
+                error_code=e.error_code,
+                message=e.message,
+                details=e.details,
+                process_time=round(process_time, 3)
+            )
+            
+            return JSONResponse(
+                status_code=status_code,
+                content={
+                    "error": {
+                        **e.to_dict(),
+                        "request_id": request_id,
+                        "timestamp": time.time()
+                    }
+                },
+                headers={"X-Request-ID": request_id}
+            )
             
         except IntegrityError as e:
             # Handle database integrity errors
@@ -171,6 +205,31 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 },
                 headers={"X-Request-ID": request_id}
             )
+
+
+    def _get_status_code_for_error(self, error: FOReportingError) -> int:
+        """Map custom exceptions to appropriate HTTP status codes."""
+        error_type = error.__class__.__name__
+        
+        # Map specific error types to HTTP status codes
+        status_map = {
+            "DocumentNotFoundError": 404,
+            "InvestorNotFoundError": 404,
+            "FundNotFoundError": 404,
+            "ProcessorNotAvailableError": 422,
+            "ValidationError": 422,
+            "ConfigurationError": 500,
+            "DatabaseConnectionError": 503,
+            "OpenAIError": 503,
+            "VectorStoreError": 503,
+            "ExtractionError": 422,
+            "ReconciliationError": 409,
+            "PerformanceCalculationError": 422,
+            "FileWatcherError": 500,
+            "DependencyError": 500
+        }
+        
+        return status_map.get(error_type, 500)  # Default to 500 for unknown errors
 
 
 class RequestValidationMiddleware(BaseHTTPMiddleware):

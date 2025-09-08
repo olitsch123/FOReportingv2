@@ -1,14 +1,15 @@
 """AI-powered document classifier using OpenAI."""
 
 import json
+import os
 import re
 from datetime import datetime
-from typing import Dict, Any, Optional, List
-import tiktoken
+from typing import Any, Dict, List, Optional
+
 import openai
+import tiktoken
 
 from app.config import load_settings
-import os
 
 settings = load_settings()
 from app.database.models import DocumentType

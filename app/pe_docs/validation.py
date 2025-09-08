@@ -1,11 +1,13 @@
 """Validation module for PE documents data."""
 
 import re
-from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, date
-from decimal import Decimal
 from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Tuple
+
 from structlog import get_logger
+
 from app.pe_docs.config import get_pe_config
 
 logger = get_logger()

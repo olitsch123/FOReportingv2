@@ -1,7 +1,9 @@
 """Cashflow extractor for capital calls and distributions."""
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from .base import BaseExtractor
+
 
 class CashflowExtractor(BaseExtractor):
     """Extract cashflow information from capital calls and distribution notices."""

@@ -6,15 +6,15 @@
 # DATABASE CONFIGURATION
 # =============================================================================
 # PostgreSQL database settings
-POSTGRES_DB=foreporting_db
-POSTGRES_USER=system
-POSTGRES_PASSWORD=BreslauerPlatz4
+POSTGRES_DB=your_database_name
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_secure_password
 
 # Database connection URLs
 # For Docker deployment (using container name):
-DATABASE_URL=postgresql+psycopg2://system:BreslauerPlatz4@postgres:5432/foreporting_db
+DATABASE_URL=postgresql+psycopg://your_username:your_secure_password@postgres:5432/your_database_name
 # For local development (using localhost):
-# DATABASE_URL=postgresql+psycopg2://system:BreslauerPlatz4@localhost:5432/foreporting_db
+# DATABASE_URL=postgresql+psycopg://your_username:your_secure_password@localhost:5432/your_database_name
 
 # =============================================================================
 # OPENAI CONFIGURATION (REQUIRED)
@@ -29,18 +29,21 @@ OPENAI_VECTOR_STORE_ID=vs_your_actual_vector_store_id_here
 # =============================================================================
 # INVESTOR FOLDER PATHS
 # =============================================================================
-# Windows paths to investor document folders
+# Paths to investor document folders (OS-specific)
 # These paths will be monitored for new documents
 
-# BrainWeb Investment folder
-INVESTOR1_PATH=C:\Users\OliverGötz\Equivia GmbH\01_BrainWeb Investment GmbH - Dokumente\09 Funds
+# Investor 1 folder (adjust for your OS and structure)
+# Windows: C:\Users\YourUser\Documents\Investor1\Funds
+# Linux/Mac: /home/youruser/documents/investor1/funds
+INVESTOR1_PATH=path/to/your/investor1/documents/folder
 
-# Pecunalta folder  
-INVESTOR2_PATH=C:\Users\OliverGötz\Equivia GmbH\01_pecunalta GmbH - Documents\09 Funds
+# Investor 2 folder
+INVESTOR2_PATH=path/to/your/investor2/documents/folder
 
 # Docker volume mappings (for Docker deployment)
-INVESTOR1_PATH_HOST=C:\Users\OliverGötz\Equivia GmbH\01_BrainWeb Investment GmbH - Dokumente\09 Funds
-INVESTOR2_PATH_HOST=C:\Users\OliverGötz\Equivia GmbH\01_pecunalta GmbH - Documents\09 Funds
+# These should match your host paths for volume mounting
+INVESTOR1_PATH_HOST=path/to/your/investor1/documents/folder
+INVESTOR2_PATH_HOST=path/to/your/investor2/documents/folder
 
 # =============================================================================
 # VECTOR STORE CONFIGURATION

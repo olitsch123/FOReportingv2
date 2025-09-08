@@ -1,23 +1,25 @@
 """File system watcher service."""
 
 import asyncio
-import logging
-from pathlib import Path
-from typing import Set, Dict, Any, Optional
-from datetime import datetime, timedelta
 import hashlib
-
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileModifiedEvent
-
-from app.config import load_settings, get_investor_from_path
-from app.database.connection import get_db
+import logging
 import os
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, Optional, Set
+
+from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileSystemEventHandler
+from watchdog.observers import Observer
+
+from app.config import get_investor_from_path, load_settings
+from app.database.connection import get_db
 
 settings = load_settings()
-from app.services.document_service import DocumentService
+from app.database.document_tracker import DocumentTrackerService, calculate_file_hash
+from app.pe_docs.api.processing import handle_file as pe_handle_file
 from app.processors.processor_factory import ProcessorFactory
-from app.pe_docs.api import handle_file as pe_handle_file
+from app.services.document_service import DocumentService
+
 # from app.pe_docs.storage.ledger import create_file_ledger  # TODO: Re-enable when storage modules restored
 
 logger = logging.getLogger(__name__)
@@ -48,6 +50,24 @@ class DocumentFileHandler(FileSystemEventHandler):
     def _queue_file_for_processing(self, file_path: str, event_type: str):
         """Queue a file for processing with debouncing."""
         file_path = str(Path(file_path).absolute())
+        path_obj = Path(file_path)
+        
+        # Check exclusion rules
+        # 1. Skip Python scripts
+        if path_obj.suffix.lower() == '.py':
+            logger.debug(f"Skipping Python script: {file_path}")
+            return
+        
+        # 2. Skip files matching [Date]_Fund_Documents.xlsx pattern
+        if path_obj.name.endswith('_Fund_Documents.xlsx') and '[' in path_obj.name:
+            logger.debug(f"Skipping Fund Documents file: {file_path}")
+            return
+        
+        # 3. Skip files in folders starting with "!"
+        for parent in path_obj.parents:
+            if parent.name.startswith('!'):
+                logger.debug(f"Skipping file in excluded folder (!{parent.name}): {file_path}")
+                return
         
         # Check if file extension is supported
         if not self.processor_factory.can_process_file(file_path):
@@ -97,6 +117,10 @@ class DocumentFileHandler(FileSystemEventHandler):
     
     async def _process_file(self, file_path: str):
         """Process a single file."""
+        db = next(get_db())
+        tracker_service = DocumentTrackerService(db)
+        file_hash = None
+        
         try:
             logger.info(f"Processing file: {file_path}")
             
@@ -105,45 +129,77 @@ class DocumentFileHandler(FileSystemEventHandler):
                 logger.warning(f"File no longer exists: {file_path}")
                 return
             
-            # Check if file is already being processed or recently processed
-            existing_doc = await self.document_service.get_document_by_path(file_path)
-            if existing_doc:
-                # Check if file has changed (compare hash)
-                current_hash = self._calculate_file_hash(file_path)
-                if existing_doc.file_hash == current_hash:
-                    logger.info(f"File unchanged, skipping: {file_path}")
-                    return
-                
-                logger.info(f"File changed, reprocessing: {file_path}")
+            # Track the document
+            doc_tracker = tracker_service.track_document(file_path)
+            if not doc_tracker:
+                logger.error(f"Failed to track document: {file_path}")
+                return
+            
+            file_hash = doc_tracker.file_hash
+            
+            # Check if already processed
+            if doc_tracker.status == 'completed':
+                logger.info(f"File already processed (hash: {file_hash[:8]}...): {file_path}")
+                return
+            
+            # Mark as processing
+            tracker_service.mark_processing(file_hash)
             
             # Determine investor
             investor_code = get_investor_from_path(file_path)
             if not investor_code:
                 logger.warning(f"Could not determine investor for file: {file_path}")
+                tracker_service.mark_failed(file_hash, "Could not determine investor")
                 return
             
             # Process via PE docs API
-            db = next(get_db())
             try:
-                await pe_handle_file(file_path, "default", investor_code, db)
-                result = True
+                result = await pe_handle_file(file_path, investor_code, db)
+                
+                if result:
+                    # Extract metadata from result if available
+                    metadata = {
+                        'investor_name': investor_code,
+                        'document_type': getattr(result, 'doc_type', None) if hasattr(result, 'doc_type') else None,
+                        'fund_name': getattr(result, 'fund_name', None) if hasattr(result, 'fund_name') else None,
+                    }
+                    
+                    # Mark as completed
+                    pe_doc_id = getattr(result, 'id', None) if hasattr(result, 'id') else None
+                    tracker_service.mark_completed(file_hash, pe_document_id=pe_doc_id, metadata=metadata)
+                    logger.info(f"Successfully processed: {file_path} (hash: {file_hash[:8]}...)")
+                else:
+                    tracker_service.mark_failed(file_hash, "Processing returned no result")
+                    logger.error(f"Failed to process: {file_path}")
+                    
             except Exception as e:
                 logger.error(f"PE docs processing failed: {e}")
-                # Fallback to original document service
-                result = await self.document_service.process_document(
-                    file_path=file_path,
-                    investor_code=investor_code
-                )
-            finally:
-                db.close()
-            
-            if result:
-                logger.info(f"Successfully processed: {file_path}")
-            else:
-                logger.error(f"Failed to process: {file_path}")
                 
+                # Try fallback to original document service
+                try:
+                    result = await self.document_service.process_document(
+                        file_path=file_path,
+                        investor_code=investor_code
+                    )
+                    
+                    if result:
+                        doc_id = result.get('id') if isinstance(result, dict) else None
+                        tracker_service.mark_completed(file_hash, document_id=doc_id)
+                        logger.info(f"Successfully processed via fallback: {file_path}")
+                    else:
+                        tracker_service.mark_failed(file_hash, f"Fallback processing failed: {str(e)}")
+                        logger.error(f"Fallback also failed: {file_path}")
+                        
+                except Exception as fallback_error:
+                    tracker_service.mark_failed(file_hash, f"All processing failed: {str(e)} / {str(fallback_error)}")
+                    logger.error(f"All processing attempts failed for {file_path}: {str(fallback_error)}")
+                    
         except Exception as e:
             logger.error(f"Error processing file {file_path}: {str(e)}")
+            if file_hash:
+                tracker_service.mark_failed(file_hash, str(e))
+        finally:
+            db.close()
     
     def _calculate_file_hash(self, file_path: str) -> str:
         """Calculate SHA-256 hash of file."""
@@ -175,19 +231,23 @@ class FileWatcherService:
         
         try:
             # Watch investor folders
+            investor1_path = os.getenv("INVESTOR1_PATH")
+            investor2_path = os.getenv("INVESTOR2_PATH")
+                
             folders_to_watch = [
-                os.getenv("INVESTOR1_PATH"),
-                os.getenv("INVESTOR2_PATH"),
+                ("Investor 1", investor1_path),
+                ("Investor 2", investor2_path),
             ]
             
-            for folder in folders_to_watch:
+            folders_watched = 0
+            for name, folder in folders_to_watch:
                 if not folder:
-                    logger.warning("Folder not configured (ENV missing)")
+                    logger.warning(f"{name}: Folder not configured (ENV missing)")
                     continue
                 try:
                     folder_path = Path(folder)
                 except (TypeError, ValueError):
-                    logger.warning("Invalid folder path (None or malformed)")
+                    logger.warning(f"{name}: Invalid folder path (None or malformed)")
                     continue
                 if folder_path.exists():
                     self.observer.schedule(
@@ -195,9 +255,13 @@ class FileWatcherService:
                         str(folder_path),
                         recursive=True
                     )
-                    logger.info(f"Watching folder: {folder}")
+                    logger.info(f"Watching {name}: {folder}")
+                    folders_watched += 1
                 else:
-                    logger.warning(f"Folder does not exist: {folder}")
+                    logger.warning(f"{name}: Folder does not exist: {folder}")
+            
+            if folders_watched == 0:
+                logger.warning("No valid folders to watch!")
             
             # Start the observer
             self.observer.start()
@@ -228,12 +292,17 @@ class FileWatcherService:
         """Process existing files in watched folders on startup."""
         logger.info("Processing existing files...")
         
+        # Get paths
+        investor1_path = os.getenv("INVESTOR1_PATH")
+        investor2_path = os.getenv("INVESTOR2_PATH")
+            
         folders_to_scan = [
-            os.getenv("INVESTOR1_PATH"),
-            os.getenv("INVESTOR2_PATH"),
+            ("Investor 1", investor1_path),
+            ("Investor 2", investor2_path),
         ]
         
-        for folder in folders_to_scan:
+        total_files_queued = 0
+        for name, folder in folders_to_scan:
             if not folder:
                 continue
             try:
@@ -241,20 +310,52 @@ class FileWatcherService:
             except (TypeError, ValueError):
                 continue
             if not folder_path.exists():
+                logger.warning(f"Cannot scan {name}: folder does not exist")
                 continue
             
             # Find all supported files
             supported_extensions = self.handler.processor_factory.get_supported_extensions()
             
+            files_in_folder = 0
+            files_skipped = 0
             for ext in supported_extensions:
+                # Skip Python files
+                if ext.lower() == '.py':
+                    continue
+                    
                 pattern = f"**/*{ext}"
                 for file_path in folder_path.rglob(pattern):
                     if file_path.is_file():
+                        # Apply exclusion rules
+                        # 1. Skip Python scripts (redundant but safe)
+                        if file_path.suffix.lower() == '.py':
+                            files_skipped += 1
+                            continue
+                        
+                        # 2. Skip files matching [Date]_Fund_Documents.xlsx pattern
+                        if file_path.name.endswith('_Fund_Documents.xlsx') and '[' in file_path.name:
+                            files_skipped += 1
+                            continue
+                        
+                        # 3. Skip files in folders starting with "!"
+                        skip_file = False
+                        for parent in file_path.parents:
+                            if parent.name.startswith('!'):
+                                skip_file = True
+                                break
+                        if skip_file:
+                            files_skipped += 1
+                            continue
+                        
                         # Schedule for processing (with small delay to spread load)
                         await asyncio.sleep(0.1)
                         self.handler._queue_file_for_processing(str(file_path), "existing")
+                        files_in_folder += 1
+            
+            logger.info(f"Queued {files_in_folder} files from {name} (skipped {files_skipped} excluded files)")
+            total_files_queued += files_in_folder
         
-        logger.info("Finished queuing existing files for processing")
+        logger.info(f"Finished queuing {total_files_queued} existing files for processing")
     
     async def rescan_pe_paths(self):
         """Rescan PE investor paths for new files."""

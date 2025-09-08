@@ -7,7 +7,6 @@ import os
 from app.services.document_service import DocumentService
 from app.services.file_watcher import FileWatcherService
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

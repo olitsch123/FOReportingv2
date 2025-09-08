@@ -1,12 +1,12 @@
 """Capital Account Statement extractor with multi-method extraction."""
 
-import re
-from decimal import Decimal
-from typing import Dict, Any, List, Optional
 import logging
+import re
 from datetime import datetime
+from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
-from .base import BaseExtractor, ExtractionResult, ExtractionMethod
+from .base import BaseExtractor, ExtractionMethod, ExtractionResult
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +19,10 @@ class CapitalAccountExtractor(BaseExtractor):
         return {
             'beginning_balance': {
                 'patterns': [
-                    r'beginning\s+balance[\s:]+\$?([\d,]+\.?\d*)',
+                    r'beginning\s+balance[\s\(\):]+\$?([\d,]+\.?\d*)',
                     r'opening\s+balance[\s:]+\$?([\d,]+\.?\d*)',
                     r'balance[,\s]+beginning[\s:]+\$?([\d,]+\.?\d*)',
+                    r'beginning\s+balance\s*\([^)]+\)[\s:]+\$?([\d,]+\.?\d*)',
                     r'balance\s+at\s+beginning\s+of\s+period[\s:]+\$?([\d,]+\.?\d*)',
                     r'prior\s+period\s+ending\s+balance[\s:]+\$?([\d,]+\.?\d*)'
                 ],
@@ -44,9 +45,11 @@ class CapitalAccountExtractor(BaseExtractor):
             },
             'contributions_period': {
                 'patterns': [
-                    r'contributions?[\s:]+\$?([\d,]+\.?\d*)',
+                    r'total\s+contributions\s+this\s+period[\s:]+\$?([\d,]+\.?\d*)',
+                    r'contributions\s+this\s+period[\s:]+\$?([\d,]+\.?\d*)',
+                    r'capital\s+call\s+#\d+[^$]+\$?([\d,]+\.?\d*)',
+                    r'contributions?[\s:]+\$?([\d,]+\.?\d*)(?=\s*\n)',
                     r'capital\s+calls?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'paid[\s-]in\s+capital[\s:]+\$?([\d,]+\.?\d*)',
                     r'additional\s+capital[\s:]+\$?([\d,]+\.?\d*)'
                 ],
                 'table_headers': ['Contributions', 'Capital Calls', 'Paid-in Capital', 'Capital Contributions'],
@@ -55,9 +58,11 @@ class CapitalAccountExtractor(BaseExtractor):
             },
             'distributions_period': {
                 'patterns': [
-                    r'distributions?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'proceeds[\s:]+\$?([\d,]+\.?\d*)',
-                    r'cash\s+distributions?[\s:]+\$?([\d,]+\.?\d*)'
+                    r'total\s+distributions\s+this\s+period[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'distributions\s+this\s+period[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'distributions?[\s:]+\$?\(?([\d,]+\.?\d*)\)?(?=\s*\n)',
+                    r'proceeds[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'cash\s+distributions?[\s:]+\$?\(?([\d,]+\.?\d*)\)?'
                 ],
                 'table_headers': ['Distributions', 'Cash Distributions', 'Proceeds', 'Total Distributions'],
                 'type': 'decimal'
@@ -89,20 +94,39 @@ class CapitalAccountExtractor(BaseExtractor):
                 'table_headers': ['Income', 'Dividends', 'Interest', 'Income Distributions'],
                 'type': 'decimal'
             },
+            'as_of_date': {
+                'patterns': [
+                    r'as\s+of\s+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})',
+                    r'statement\s+date[\s:]+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})',
+                    r'reporting\s+date[\s:]+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})',
+                    r'period\s+end(?:ing)?[\s:]+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})',
+                    r'(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+statement',
+                    r'q[1-4]\s+(\d{4})',  # Q2 2025 format
+                    r'quarter\s+end(?:ing)?\s+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})',
+                    r'(\d{1,2}\.\d{1,2}\.\d{2,4})',  # German date format
+                    r'(\d{4}-\d{1,2}-\d{1,2})'  # ISO date format
+                ],
+                'table_headers': ['As of Date', 'Statement Date', 'Reporting Date', 'Period End', 'Date'],
+                'type': 'date',
+                'required': True
+            },
             'management_fees_period': {
                 'patterns': [
-                    r'management\s+fees?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'mgmt\s+fees?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'advisory\s+fees?[\s:]+\$?([\d,]+\.?\d*)'
+                    r'q\d+\s+\d+\s+management\s+fee\s*\([^)]+\)[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'management\s+fee\s*\([^%]+%\)[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'management\s+fees?[\s:]+\$?\(?([\d,]+\.?\d*)\)?(?!\s*%)',
+                    r'mgmt\s+fees?[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'advisory\s+fees?[\s:]+\$?\(?([\d,]+\.?\d*)\)?'
                 ],
                 'table_headers': ['Management Fees', 'Mgmt Fees', 'Advisory Fees'],
                 'type': 'decimal'
             },
             'partnership_expenses_period': {
                 'patterns': [
-                    r'partnership\s+expenses?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'fund\s+expenses?[\s:]+\$?([\d,]+\.?\d*)',
-                    r'operating\s+expenses?[\s:]+\$?([\d,]+\.?\d*)'
+                    r'total\s+partnership\s+expenses[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'partnership\s+expenses?[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'fund\s+expenses?[\s:]+\$?\(?([\d,]+\.?\d*)\)?',
+                    r'operating\s+expenses?[\s:]+\$?\(?([\d,]+\.?\d*)\)?'
                 ],
                 'table_headers': ['Partnership Expenses', 'Fund Expenses', 'Operating Expenses'],
                 'type': 'decimal'
@@ -143,6 +167,16 @@ class CapitalAccountExtractor(BaseExtractor):
                 'table_headers': ['Unfunded Commitment', 'Remaining Commitment', 'Undrawn'],
                 'type': 'decimal'
             },
+            'drawn_commitment': {
+                'patterns': [
+                    r'drawn\s+commitment[\s:]+\$?([\d,]+\.?\d*)',
+                    r'called\s+commitment[\s:]+\$?([\d,]+\.?\d*)',
+                    r'paid[\s-]in\s+capital[\s:]+\$?([\d,]+\.?\d*)',
+                    r'cumulative\s+contributions[\s:]+\$?([\d,]+\.?\d*)'
+                ],
+                'table_headers': ['Drawn Commitment', 'Called Commitment', 'Paid-In Capital'],
+                'type': 'decimal'
+            },
             'ownership_pct': {
                 'patterns': [
                     r'ownership\s+percentage[\s:]+(\d+\.?\d*)\s*%',
@@ -180,20 +214,47 @@ class CapitalAccountExtractor(BaseExtractor):
                 if special_result:
                     results.append(special_result)
             
+            # Method 4: Date-specific extraction
+            if field_name == 'as_of_date' and not results:
+                date_result = self._extract_date_from_filename_and_text(text, field_name)
+                if date_result:
+                    results.append(date_result)
+            
             # Reconcile results
             if results:
                 best_result = self.reconcile_results(results)
                 if best_result:
-                    extracted_data[field_name] = best_result.value
+                    # Convert date strings to proper format
+                    if field_def.get('type') == 'date' and best_result.value:
+                        parsed_date = self._parse_date(best_result.value)
+                        if parsed_date:
+                            extracted_data[field_name] = parsed_date
+                        else:
+                            extracted_data[field_name] = best_result.value
+                    else:
+                        extracted_data[field_name] = best_result.value
                     
                     # Add to audit trail
                     extraction_audit.append({
                         'field': field_name,
-                        'value': best_result.value,
+                        'value': extracted_data[field_name],
                         'method': best_result.method,
                         'confidence': best_result.confidence,
                         'alternatives': best_result.alternatives
                     })
+        
+        # Fallback: If no as_of_date found, try to infer from Q2 2025 in filename
+        if 'as_of_date' not in extracted_data or not extracted_data['as_of_date']:
+            fallback_date = self._extract_date_from_context(text)
+            if fallback_date:
+                extracted_data['as_of_date'] = fallback_date
+                extraction_audit.append({
+                    'field': 'as_of_date',
+                    'value': fallback_date,
+                    'method': ExtractionMethod.POSITIONAL,
+                    'confidence': 0.7,
+                    'alternatives': []
+                })
         
         # Add calculated fields
         extracted_data = self._add_calculated_fields(extracted_data)
@@ -203,6 +264,69 @@ class CapitalAccountExtractor(BaseExtractor):
         extracted_data['extraction_timestamp'] = datetime.utcnow().isoformat()
         
         return extracted_data
+    
+    def _parse_date(self, date_str: str) -> Optional[str]:
+        """Parse date string to YYYY-MM-DD format."""
+        if not date_str:
+            return None
+            
+        try:
+            from dateutil import parser
+
+            # Handle Q2 2025 format
+            if re.match(r'q[1-4]\s+\d{4}', date_str.lower()):
+                quarter_match = re.search(r'q([1-4])\s+(\d{4})', date_str.lower())
+                if quarter_match:
+                    quarter, year = quarter_match.groups()
+                    # Map quarter to end date
+                    quarter_ends = {'1': '03-31', '2': '06-30', '3': '09-30', '4': '12-31'}
+                    return f"{year}-{quarter_ends[quarter]}"
+            
+            # Parse other date formats
+            parsed = parser.parse(date_str)
+            return parsed.strftime('%Y-%m-%d')
+            
+        except Exception as e:
+            logger.warning(f"Could not parse date '{date_str}': {e}")
+            return None
+    
+    def _extract_date_from_filename_and_text(self, text: str, field_name: str) -> Optional[ExtractionResult]:
+        """Extract date from filename and text context."""
+        # Look for Q2 2025 pattern in text
+        quarter_patterns = [
+            r'Q([1-4])\s+(\d{4})',
+            r'quarter\s+([1-4])\s+(\d{4})',
+            r'(\d{4})\s+Q([1-4])'
+        ]
+        
+        for pattern in quarter_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                if len(match.groups()) == 2:
+                    quarter, year = match.groups()
+                    if quarter.isdigit() and year.isdigit():
+                        quarter_ends = {'1': '03-31', '2': '06-30', '3': '09-30', '4': '12-31'}
+                        date_str = f"{year}-{quarter_ends.get(quarter, '12-31')}"
+                        return ExtractionResult(
+                            field_name=field_name,
+                            value=date_str,
+                            method=ExtractionMethod.REGEX,
+                            confidence=0.8,
+                            raw_text=match.group(0)
+                        )
+        
+        return None
+    
+    def _extract_date_from_context(self, text: str) -> Optional[str]:
+        """Extract date from context clues."""
+        # Look for Q2 2025 in filename or text
+        quarter_match = re.search(r'Q([1-4])\s+(\d{4})', text, re.IGNORECASE)
+        if quarter_match:
+            quarter, year = quarter_match.groups()
+            quarter_ends = {'1': '03-31', '2': '06-30', '3': '09-30', '4': '12-31'}
+            return f"{year}-{quarter_ends[quarter]}"
+        
+        return None
     
     def _extract_complex_field(self, text: str, tables: List[Dict], field_name: str) -> Optional[ExtractionResult]:
         """Extract complex fields that may have multiple components."""

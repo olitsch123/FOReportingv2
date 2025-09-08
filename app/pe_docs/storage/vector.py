@@ -1,13 +1,16 @@
 """Vector storage for PE documents with backend switching."""
 
 import os
-from typing import Dict, Any, List, Optional, Tuple
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
 import chromadb
-from chromadb.config import Settings
+import httpx
 import openai
+from chromadb.config import Settings
 from structlog import get_logger
+
 from app.config import load_settings
 
 logger = get_logger()
@@ -90,7 +93,7 @@ class PEVectorStore:
             
             # Verify vector store exists
             try:
-                self.vector_store = self.openai_client.beta.vector_stores.retrieve(
+                self.vector_store = self.openai_client.vector_stores.retrieve(
                     self.vector_store_id
                 )
             except Exception as e:
@@ -206,7 +209,7 @@ Period: {chunk.get('period_end', '')}
         
         # Add files to vector store
         if files_to_upload:
-            batch_response = self.openai_client.beta.vector_stores.file_batches.create(
+            batch_response = self.openai_client.vector_stores.file_batches.create(
                 vector_store_id=self.vector_store_id,
                 file_ids=files_to_upload
             )
@@ -283,82 +286,99 @@ Period: {chunk.get('period_end', '')}
                            query: str,
                            top_k: int,
                            filters: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Search OpenAI Vector Store."""
-        # Create assistant for search if not exists
-        assistant = self.openai_client.beta.assistants.create(
-            name="PE Document Search",
-            instructions="Search for relevant PE document chunks.",
-            tools=[{"type": "file_search"}],
-            tool_resources={
-                "file_search": {
-                    "vector_store_ids": [self.vector_store_id]
-                }
+        """Search OpenAI Vector Store using direct API."""
+        try:
+            # Use httpx to call the vector store search API directly
+            endpoint = f"https://api.openai.com/v1/vector_stores/{self.vector_store_id}/search"
+            
+            headers = {
+                'Authorization': f'Bearer {settings.get("OPENAI_API_KEY")}',
+                'Content-Type': 'application/json',
+                'OpenAI-Beta': 'assistants=v2'
             }
-        )
-        
-        # Create thread and run search
-        thread = self.openai_client.beta.threads.create()
-        
-        # Build filter query
-        filter_parts = []
-        if filters:
-            for key, value in filters.items():
-                if value is not None and value != '':
-                    filter_parts.append(f"{key}:{value}")
-        
-        search_query = query
-        if filter_parts:
-            search_query = f"{query} {' '.join(filter_parts)}"
-        
-        # Run search
-        message = self.openai_client.beta.threads.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=search_query
-        )
-        
-        run = self.openai_client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=assistant.id
-        )
-        
-        # Wait for completion
-        while run.status in ["queued", "in_progress"]:
-            run = self.openai_client.beta.threads.runs.retrieve(
-                thread_id=thread.id,
-                run_id=run.id
+            
+            # Build search payload
+            payload = {
+                "query": query,
+                "max_num_results": top_k,
+                "rewrite_query": True
+            }
+            
+            # Add filters if provided
+            if filters:
+                filter_conditions = []
+                for key, value in filters.items():
+                    if value is not None and value != '':
+                        filter_conditions.append({
+                            "key": key,
+                            "type": "eq",
+                            "value": value
+                        })
+                
+                if filter_conditions:
+                    if len(filter_conditions) > 1:
+                        payload["filters"] = {
+                            "type": "and",
+                            "filters": filter_conditions
+                        }
+                    else:
+                        payload["filters"] = filter_conditions[0]
+            
+            # Make the API request
+            async with httpx.AsyncClient(timeout=60) as client:
+                response = await client.post(
+                    endpoint,
+                    headers=headers,
+                    json=payload
+                )
+                
+                if response.status_code != 200:
+                    logger.error(
+                        "vector_store_search_failed",
+                        status_code=response.status_code,
+                        response=response.text
+                    )
+                    return []
+                
+                result = response.json()
+                
+            # Format results
+            formatted_results = []
+            for item in result.get('data', []):
+                # Extract text content
+                text_content = ""
+                for content in item.get('content', []):
+                    if content.get('type') == 'text':
+                        text_content = content.get('text', '')
+                        break
+                
+                formatted_results.append({
+                    'id': item.get('file_id'),
+                    'text': text_content,
+                    'metadata': {
+                        'filename': item.get('filename'),
+                        'attributes': item.get('attributes', {}),
+                        'file_id': item.get('file_id')
+                    },
+                    'score': float(item.get('score', 0.0)),
+                    'backend': 'openai'
+                })
+            
+            logger.info(
+                "vector_store_search_success",
+                query=query[:50],
+                result_count=len(formatted_results)
             )
-        
-        # Get results
-        messages = self.openai_client.beta.threads.messages.list(
-            thread_id=thread.id
-        )
-        
-        # Parse results
-        formatted_results = []
-        for msg in messages.data:
-            if msg.role == "assistant":
-                # Extract file citations
-                for content in msg.content:
-                    if hasattr(content, 'text') and hasattr(content.text, 'annotations'):
-                        for annotation in content.text.annotations:
-                            if hasattr(annotation, 'file_citation'):
-                                formatted_results.append({
-                                    'id': annotation.file_citation.file_id,
-                                    'text': content.text.value,
-                                    'metadata': {
-                                        'quote': annotation.file_citation.quote,
-                                        'file_id': annotation.file_citation.file_id
-                                    },
-                                    'score': 1.0,  # OpenAI doesn't provide scores
-                                    'backend': 'openai'
-                                })
-        
-        # Clean up
-        self.openai_client.beta.assistants.delete(assistant.id)
-        self.openai_client.beta.threads.delete(thread.id)
-        
-        return formatted_results[:top_k]
+            
+            return formatted_results
+            
+        except Exception as e:
+            logger.error(
+                "vector_store_search_error",
+                error=str(e),
+                query=query[:50]
+            )
+            return []
     
     async def _create_embedding(self, text: str) -> Optional[List[float]]:
         """Create embedding using OpenAI."""
@@ -431,7 +451,7 @@ Period: {chunk.get('period_end', '')}
             }
         else:
             # Get vector store info
-            vs = self.openai_client.beta.vector_stores.retrieve(
+            vs = self.openai_client.vector_stores.retrieve(
                 self.vector_store_id
             )
             return {

@@ -1,11 +1,11 @@
 """Script to run the complete FOReporting v2 system."""
 
+import os
 import subprocess
 import sys
-import time
-import os
-from pathlib import Path
 import threading
+import time
+from pathlib import Path
 
 # Add the parent directory to Python path
 sys.path.append(str(Path(__file__).parent.parent))

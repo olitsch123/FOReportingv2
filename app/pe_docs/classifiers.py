@@ -1,10 +1,12 @@
 """Document classification for PE documents."""
 
 import re
-from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import openai
 from structlog import get_logger
+
 from app.config import load_settings
 from app.pe_docs.config import get_pe_config
 

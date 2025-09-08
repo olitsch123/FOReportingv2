@@ -1,0 +1,55 @@
+=== Capital Account Extraction Test ===
+
+✓ Loaded document: data\test_documents\sample_capital_account.txt
+  Document length: 2130 characters
+
+✓ Created CapitalAccountExtractor
+
+Field Extraction Results:
+--------------------------------------------------
+✓ beginning_balance              =     35000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ ending_balance                 =     40700000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ contributions_period           =      5000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ distributions_period           =     18000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ management_fees_period         =             0.5
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✗ partnership_expenses_period    = NOT FOUND
+✓ realized_gain_loss_period      =      1500000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ unrealized_gain_loss_period    =      3000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ total_commitment               =     50000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ drawn_commitment               =     35000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ unfunded_commitment            =     15000000.00
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+✓ ownership_pct                  =            0.05
+  Method: ExtractionMethod.REGEX, Confidence: 0.8
+
+==================================================
+
+Running full extraction...
+✓ Full extraction completed
+  Fields extracted: 14
+
+Accuracy Check:
+--------------------------------------------------
+✓ beginning_balance: 35000000.0 (correct)
+✓ ending_balance: 40700000.0 (correct)
+✓ contributions_period: 5000000.0 (correct)
+✗ distributions_period: 18000000.0 (expected 4000000)
+✗ management_fees_period: 0.5 (expected 250000)
+✗ partnership_expenses_period: NOT EXTRACTED (expected 50000)
+✓ realized_gain_loss_period: 1500000.0 (correct)
+✓ unrealized_gain_loss_period: 3000000.0 (correct)
+✓ total_commitment: 50000000.0 (correct)
+✓ drawn_commitment: 35000000.0 (correct)
+✓ unfunded_commitment: 15000000.0 (correct)
+✓ ownership_pct: 0.05 (correct)
+
+Accuracy: 9/12 = 75.0%

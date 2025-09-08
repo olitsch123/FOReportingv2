@@ -1,0 +1,62 @@
+=== End-to-End PE Document Processing Test ===
+
+Step 1: Load Document
+--------------------------------------------------
+✓ Loaded: data\test_documents\sample_capital_account.txt
+  Size: 2130 characters
+
+Step 2: Initialize Multi-Method Extractor
+--------------------------------------------------
+✓ MultiMethodExtractor initialized
+
+Step 3: Process Document
+--------------------------------------------------
+✓ Document processed successfully
+  Status: success
+  Confidence: 0.86
+  Requires Review: True
+
+Step 4: Extraction Results
+--------------------------------------------------
+  beginning_balance         = 35000000.00
+  ending_balance            = 40700000.00
+  contributions_period      = 5000000.00
+  distributions_period      = 18000000.00
+  total_commitment          = 50000000.00
+  unfunded_commitment       = 15000000.00
+
+  Total fields extracted: 22
+  Audit entries: 11
+
+  Sample audit entries:
+    - beginning_balance: ExtractionMethod.REGEX (conf: 0.8)
+    - ending_balance: ExtractionMethod.REGEX (conf: 0.8)
+    - contributions_period: ExtractionMethod.REGEX (conf: 0.8)
+
+Step 5: Validation Results
+--------------------------------------------------
+  Valid: False
+  Errors: 1
+  Warnings: 0
+  Confidence: 0.95
+
+  Validation errors:
+    - Balance equation mismatch: ending balance 40700000.00 != calculated 26500000.00 (difference: 14200000.00)
+
+Step 6: Storage Simulation
+--------------------------------------------------
+✓ Would store to pe_capital_account table
+✓ Would create extraction_audit records
+✓ Would update document status
+
+Step 7: Manual Override Test
+--------------------------------------------------
+✗ Manual override failed: Database connection failed: 'NoneType' object is not callable
+
+==================================================
+End-to-End Test Summary
+==================================================
+✅ Document processing pipeline is WORKING!
+   - Extraction: 86% confidence
+   - Validation: Has issues
+   - Ready for: Manual review

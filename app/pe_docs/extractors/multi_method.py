@@ -1,16 +1,17 @@
 """Multi-method extraction orchestrator for PE documents."""
 
 import asyncio
-from typing import Dict, Any, List, Optional
 import logging
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from .base import BaseExtractor, ExtractionResult, ExtractionMethod
-from .capital_account import CapitalAccountExtractor
 from app.pe_docs.classifiers import PEDocumentClassifier
-from app.pe_docs.validation import DocumentValidator
 from app.pe_docs.storage.orm import PEStorageORM
+from app.pe_docs.validation import DocumentValidator
+
+from .base import BaseExtractor, ExtractionMethod, ExtractionResult
+from .capital_account import CapitalAccountExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +21,14 @@ class MultiMethodExtractor:
     
     def __init__(self):
         """Initialize extractors and services."""
+        # Import OpenAI extractor
+        from app.pe_docs.extractors.openai_extractor import (
+            OpenAICapitalAccountExtractor,
+        )
+        
         self.extractors = {
-            'capital_account_statement': CapitalAccountExtractor(),
+            'capital_account_statement': OpenAICapitalAccountExtractor(),  # Use OpenAI for complex statements
+            'capital_account': OpenAICapitalAccountExtractor(),  # Also handle this classification
             'quarterly_report': CapitalAccountExtractor(),  # QRs often have capital account data
             # Add more extractors as implemented:
             # 'performance_report': PerformanceMetricsExtractor(),
@@ -32,6 +39,11 @@ class MultiMethodExtractor:
         self.classifier = PEDocumentClassifier()
         self.validator = DocumentValidator()
         self.storage = PEStorageORM()
+        
+        # Initialize AI field matcher for intelligent extraction
+        # Temporarily disabled - requires proper OpenAI API key configuration
+        # from app.pe_docs.extractors.ai_field_matcher import AIFieldMatcher
+        # self.ai_matcher = AIFieldMatcher()
     
     async def process_document(
         self,
@@ -68,6 +80,31 @@ class MultiMethodExtractor:
             
             # 3. Extract data using multiple methods
             extracted_data = await extractor.extract(text, tables, doc_type)
+            
+            # 3.5 Enhance with AI field matching for missing or low-confidence fields
+            # Temporarily disabled - requires proper OpenAI API key configuration
+            """
+            try:
+                ai_matches = await self.ai_matcher.match_fields(text, tables, doc_type)
+                
+                # Merge AI matches for fields that are missing or have low confidence
+                for field, value in ai_matches.items():
+                    if field.endswith('_confidence'):
+                        continue
+                        
+                    # Use AI match if field is missing or empty
+                    if field not in extracted_data or extracted_data.get(field) is None:
+                        extracted_data[field] = value
+                        logger.info(f"AI matched missing field {field}: {value}")
+                    
+                    # Also add AI confidence scores
+                    confidence_field = f"{field}_confidence"
+                    if confidence_field in ai_matches:
+                        extracted_data[f"ai_{confidence_field}"] = ai_matches[confidence_field]
+                        
+            except Exception as e:
+                logger.warning(f"AI field matching failed: {e}")
+            """
             
             # 4. Add document metadata
             extracted_data.update({

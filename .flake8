@@ -1,0 +1,28 @@
+[flake8]
+max-line-length = 88
+max-complexity = 10
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .env,
+    env,
+    alembic/versions,
+    build,
+    dist,
+    *.egg-info,
+    .tox,
+    .pytest_cache,
+    node_modules
+
+# Error codes to ignore
+ignore = E203,W503,E501
+
+# Enable specific warnings
+select = E,W,F,C
+
+# Per-file ignores
+per-file-ignores =
+    __init__.py:F401,
+    alembic/versions/*.py:E501,F401
