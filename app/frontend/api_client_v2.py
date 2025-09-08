@@ -1,15 +1,16 @@
 """Enhanced API client with production-grade features."""
 
 import os
-import uuid
 import time
-from typing import Dict, Any, Optional, List, Union
+import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import streamlit as st
+from requests.adapters import HTTPAdapter
 from structlog import get_logger
+from urllib3.util.retry import Retry
 
 logger = get_logger()
 

@@ -1,8 +1,10 @@
 """Health check script for PE system acceptance."""
 import os
 from pathlib import Path
-from app.database.connection import engine
+
 from app.config import settings
+from app.database.connection import engine
+
 
 def check_utf8_encoding():
     """Check database UTF-8 encoding."""

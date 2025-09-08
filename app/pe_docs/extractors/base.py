@@ -1,13 +1,14 @@
 """Base classes for PE document extraction."""
 
+import logging
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, Any, List, Optional, Tuple, Union
-import re
-import logging
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 from app.pe_docs.config import get_pe_config
 
 logger = logging.getLogger(__name__)

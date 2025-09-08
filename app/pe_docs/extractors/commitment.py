@@ -1,7 +1,9 @@
 """Commitment extractor for subscription documents."""
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from .base import BaseExtractor
+
 
 class CommitmentExtractor(BaseExtractor):
     """Extract commitment information from subscription agreements."""

@@ -1,22 +1,28 @@
 """Document processing service."""
 
+import asyncio
 import logging
-from typing import Optional, List, Dict, Any
 from datetime import datetime
 from pathlib import Path
-import asyncio
-from sqlalchemy.orm import Session
+from typing import Any, Dict, List, Optional
+
 from sqlalchemy import and_, or_
+from sqlalchemy.orm import Session
 
 from app.database.connection import get_db_session
 from app.database.models import (
-    Document, DocumentType, ProcessingStatus, 
-    Investor, Fund, FinancialData, DocumentEmbedding
+    Document,
+    DocumentEmbedding,
+    DocumentType,
+    FinancialData,
+    Fund,
+    Investor,
+    ProcessingStatus,
 )
-from app.processors.processor_factory import ProcessorFactory
-from app.processors.base import ProcessedDocument
-from app.services.vector_service import VectorService
 from app.pe_docs.extractors.multi_method import MultiMethodExtractor
+from app.processors.base import ProcessedDocument
+from app.processors.processor_factory import ProcessorFactory
+from app.services.vector_service import VectorService
 
 logger = logging.getLogger(__name__)
 
@@ -212,7 +218,30 @@ class DocumentService:
                 if document_type:
                     query = query.filter(Document.document_type == document_type.value)
                 
-                return query.order_by(Document.created_at.desc()).offset(offset).limit(limit).all()
+                # Get all documents
+                documents = query.order_by(Document.created_at.desc()).all()
+                
+                # Filter out documents from folders starting with "!"
+                filtered_documents = []
+                for doc in documents:
+                    if doc.file_path:
+                        from pathlib import Path
+                        path = Path(doc.file_path)
+                        # Check all parent folders
+                        skip_file = False
+                        for parent in path.parents:
+                            if parent.name.startswith('!'):
+                                skip_file = True
+                                break
+                        
+                        if not skip_file:
+                            filtered_documents.append(doc)
+                    else:
+                        # Include documents without file_path
+                        filtered_documents.append(doc)
+                
+                # Apply offset and limit after filtering
+                return filtered_documents[offset:offset + limit]
                 
         except Exception as e:
             logger.error(f"Error getting documents: {str(e)}")

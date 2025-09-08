@@ -1,18 +1,19 @@
 # Core dependencies
-fastapi==0.115.5
-uvicorn==0.32.1
-pydantic==2.10.3
+fastapi>=0.115.0,<1.0
+uvicorn[standard]>=0.30.0,<1.0
+pydantic>=2.10.0,<3.0
 sqlalchemy==2.0.36
 alembic==1.14.0
 
-# Database - Pure Python PostgreSQL driver (no C dependencies, UTF-8 safe)
-pg8000==1.31.2
+# Database - Modern PostgreSQL driver with async support
+psycopg[binary]>=3.1,<4.0
+prometheus-fastapi-instrumentator>=7.0,<8.0
 chromadb==0.5.23
 
 # Document processing
 PyPDF2==3.0.1
 pdfplumber==0.11.4
-camelot-py[cv]==0.11.0
+camelot-py==0.11.0
 tabula-py==2.10.0
 pytesseract==0.3.13
 pillow==11.0.0
@@ -36,6 +37,7 @@ watchdog==6.0.0
 # Utilities
 python-dotenv==1.0.1
 httpx==0.28.0
+openai-agents==0.2.11
 tenacity==9.0.0
 structlog==24.4.0
 rich==13.9.4
@@ -45,6 +47,9 @@ pyyaml==6.0.2
 # Web interface
 streamlit==1.41.0
 plotly==5.24.1
+streamlit-tree-select>=0.1.0
+streamlit-aggrid>=1.0.0
+streamlit-elements>=0.1.0
 
 # Testing
 pytest==8.3.4

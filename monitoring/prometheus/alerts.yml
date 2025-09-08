@@ -1,0 +1,125 @@
+groups:
+  - name: forreporting_alerts
+    rules:
+      # API Health Alerts
+      - alert: APIDown
+        expr: up{job="forreporting-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FOReporting API is down"
+          description: "The FOReporting backend API has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow API response times"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      # Document Processing Alerts
+      - alert: DocumentProcessingFailures
+        expr: rate(document_processing_failures_total[10m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High document processing failure rate"
+          description: "Document processing failure rate is {{ $value }} failures per second"
+
+      - alert: ExtractionConfidenceLow
+        expr: avg(extraction_confidence_score) < 0.7
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low extraction confidence scores"
+          description: "Average extraction confidence is {{ $value }}, below 70% threshold"
+
+      # Database Alerts
+      - alert: DatabaseConnectionIssues
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database is down"
+          description: "PostgreSQL database has been unreachable for more than 2 minutes"
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_activity_count > 180
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection count"
+          description: "Database has {{ $value }} active connections, approaching limit"
+
+      # File Watcher Alerts
+      - alert: FileWatcherDown
+        expr: file_watcher_status == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "File watcher is not running"
+          description: "File watcher has been stopped for more than 5 minutes"
+
+      - alert: UnprocessedFilesAccumulating
+        expr: unprocessed_files_count > 100
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Large number of unprocessed files"
+          description: "{{ $value }} files are waiting for processing"
+
+      # External Service Alerts
+      - alert: OpenAIRateLimitHit
+        expr: rate(openai_rate_limit_errors_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "OpenAI rate limit exceeded"
+          description: "OpenAI rate limit has been hit {{ $value }} times per second"
+
+      - alert: VectorStoreUnavailable
+        expr: vector_store_status == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Vector store unavailable"
+          description: "Vector store has been unavailable for more than 3 minutes"
+
+      # Business Logic Alerts
+      - alert: ReconciliationDiscrepancies
+        expr: reconciliation_discrepancy_count > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Multiple reconciliation discrepancies"
+          description: "{{ $value }} reconciliation discrepancies detected in the last 10 minutes"
+
+      - alert: DataQualityIssues
+        expr: rate(validation_failures_total[15m]) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Data quality issues detected"
+          description: "Data validation failure rate is {{ $value }} per second"

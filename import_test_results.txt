@@ -1,0 +1,11 @@
+=== PE Module Import Test ===
+
+✓ app.pe_docs.config - OK
+✓ app.pe_docs.extractors.base - OK
+✓ app.pe_docs.extractors.capital_account - OK
+✓ app.pe_docs.extractors.multi_method - OK
+✓ app.pe_docs.validation - OK
+✓ app.pe_docs.reconciliation.agent - OK
+✓ app.pe_docs.storage.orm - OK
+
+✅ All imports successful!

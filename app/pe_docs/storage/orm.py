@@ -1,13 +1,15 @@
 """ORM storage for PE documents data."""
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime, date
-from decimal import Decimal
 import uuid
-from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, select
+from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
+from typing import Any, Dict, List, Optional
+
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import Session
 from structlog import get_logger
+
 from app.database.connection import get_db
 
 logger = get_logger()
@@ -271,7 +273,9 @@ class PEStorageORM:
         with get_db_session() as db:
             try:
                 # Insert into extraction_audit table
-                stmt = """
+                from sqlalchemy import text
+                
+                stmt = text("""
                     INSERT INTO extraction_audit (
                         audit_id, doc_id, field_name, extracted_value,
                         extraction_method, confidence_score, validation_status,
@@ -281,17 +285,26 @@ class PEStorageORM:
                         :extraction_method, :confidence_score, :validation_status,
                         :validation_errors, :timestamp
                     )
-                """
+                """)
+                
+                # Convert complex types for psycopg3 compatibility
+                import json
+
+                # Convert enum to string
+                method_str = str(extraction_method.value) if hasattr(extraction_method, 'value') else str(extraction_method)
+                
+                # Convert validation errors to JSON string
+                errors_json = json.dumps(validation_errors) if validation_errors else None
                 
                 db.execute(stmt, {
                     'audit_id': audit_id,
                     'doc_id': doc_id,
                     'field_name': field_name,
-                    'extracted_value': extracted_value,
-                    'extraction_method': extraction_method,
-                    'confidence_score': confidence_score,
+                    'extracted_value': str(extracted_value),
+                    'extraction_method': method_str,
+                    'confidence_score': float(confidence_score),
                     'validation_status': validation_status,
-                    'validation_errors': validation_errors,
+                    'validation_errors': errors_json,
                     'timestamp': datetime.utcnow()
                 })
                 
@@ -365,18 +378,36 @@ class PEStorageORM:
                     'updated_at': datetime.utcnow()
                 }
                 
-                # Use PostgreSQL UPSERT
-                stmt = insert(db.tables['pe_capital_account']).values(**insert_data)
-                stmt = stmt.on_conflict_do_update(
-                    index_elements=['fund_id', 'investor_id', 'as_of_date'],
-                    set_={
-                        'ending_balance': stmt.excluded.ending_balance,
-                        'updated_at': datetime.utcnow(),
-                        # Update other fields as needed
-                    }
-                )
+                # Use PostgreSQL UPSERT with raw SQL
+                from sqlalchemy import text
                 
-                db.execute(stmt)
+                upsert_query = text("""
+                    INSERT INTO pe_capital_account (
+                        account_id, fund_id, investor_id, as_of_date, period_type, period_label,
+                        beginning_balance, ending_balance, contributions_period, distributions_period,
+                        distributions_roc_period, distributions_gain_period, distributions_income_period,
+                        management_fees_period, partnership_expenses_period,
+                        realized_gain_loss_period, unrealized_gain_loss_period,
+                        total_commitment, drawn_commitment, unfunded_commitment,
+                        source_doc_id, extraction_confidence, created_at, updated_at
+                    ) VALUES (
+                        CAST(:account_id AS uuid), CAST(:fund_id AS uuid), :investor_id, :as_of_date, :period_type, :period_label,
+                        :beginning_balance, :ending_balance, :contributions_period, :distributions_period,
+                        :distributions_roc_period, :distributions_gain_period, :distributions_income_period,
+                        :management_fees_period, :partnership_expenses_period,
+                        :realized_gain_loss_period, :unrealized_gain_loss_period,
+                        :total_commitment, :drawn_commitment, :unfunded_commitment,
+                        :source_doc_id, :extraction_confidence, :created_at, :updated_at
+                    )
+                    ON CONFLICT (fund_id, investor_id, as_of_date)
+                    DO UPDATE SET
+                        ending_balance = EXCLUDED.ending_balance,
+                        contributions_period = EXCLUDED.contributions_period,
+                        distributions_period = EXCLUDED.distributions_period,
+                        updated_at = EXCLUDED.updated_at
+                """)
+                
+                db.execute(upsert_query, insert_data)
                 db.commit()
                 
                 logger.info(
@@ -429,5 +460,6 @@ class PEStorageORM:
             if isinstance(value, Decimal):
                 return value
             return Decimal(str(value))
-        except:
+        except (ValueError, TypeError, InvalidOperation) as e:
+            logger.debug(f"Could not convert value to Decimal: {value} - {e}")
             return None

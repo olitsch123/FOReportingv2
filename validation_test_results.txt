@@ -1,0 +1,46 @@
+=== PE Validation Test ===
+
+✓ Created DocumentValidator
+
+Test 1: Valid Capital Account Data
+--------------------------------------------------
+  Valid: False
+  Errors: 1
+  Warnings: 0
+  Confidence: 0.95
+  ERROR: Balance equation mismatch: ending balance 40700000 != calculated 40200000 (difference: 500000)
+
+Test 2: Invalid Balance Equation
+--------------------------------------------------
+  Valid: False
+  Errors: 1
+  Error: Balance equation mismatch: ending balance 45000000 != calculated 40200000 (difference: 4800000)
+
+Test 3: Unfunded Exceeds Total Commitment
+--------------------------------------------------
+  Valid: False
+  Errors: 3
+  Error: Balance equation mismatch: ending balance 40700000 != calculated 40200000 (difference: 500000)
+
+Test 4: Missing Required Fields
+--------------------------------------------------
+  Valid: False
+  Errors: 3
+  ERROR: Required field missing: beginning_balance
+  ERROR: Required field missing: total_commitment
+  ERROR: Balance equation mismatch: ending balance 40700000 != calculated 0 (difference: 40700000)
+
+Test 5: Period Continuity Check
+--------------------------------------------------
+  Valid: False
+  Warnings: 1
+  Warning: Period continuity break: previous ending (34000000) != current beginning (35000000)
+
+Test 6: Commitment Math Validation
+--------------------------------------------------
+  Valid: False
+  Drawn + Unfunded = Total: 50000000 = 50000000
+  ✓ Commitment math is correct
+
+==================================================
+Validation tests completed!

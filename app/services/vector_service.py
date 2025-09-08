@@ -1,14 +1,15 @@
 """Vector database service for document embeddings."""
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+import os
 import uuid
+from typing import Any, Dict, List, Optional, Tuple
+
 import chromadb
-from chromadb.config import Settings
 import openai
+from chromadb.config import Settings
 
 from app.config import load_settings
-import os
 
 settings = load_settings()
 

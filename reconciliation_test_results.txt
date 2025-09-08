@@ -1,0 +1,46 @@
+=== IRR Calculation Test ===
+
+✓ Created PerformanceReconciler
+
+Test 1: Simple IRR Calculation
+--------------------------------------------------
+  Cashflows: -100 at start, +110 after 1 year
+  Calculated IRR: 10.01%
+  Expected IRR: 10.00%
+  ✓ Correct
+
+Test 2: Multiple Cashflows
+--------------------------------------------------
+  Initial: -1000, Additional: -500, Distributions: 700, Final NAV: 1200
+  Calculated IRR: 16.31%
+  Expected range: 15-25% (good PE return)
+  ✓ Reasonable
+
+Test 3: Negative IRR
+--------------------------------------------------
+  Initial: -1000, Final: 800 (20% loss)
+  Calculated IRR: -10.55%
+  ✓ Correctly negative
+
+Test 4: Multiple Calculations (MOIC, TVPI, DPI)
+--------------------------------------------------
+  Total Contributions: $15,000,000
+  Total Distributions: $8,000,000
+  Current NAV: $25,000,000
+  MOIC: 2.20x
+  TVPI: 2.20x
+  DPI: 0.53x
+  RVPI: 1.67x
+
+  TVPI Check: 2.20 = 0.53 + 1.67
+  ✓ TVPI math correct
+
+Test 5: Metrics Comparison
+--------------------------------------------------
+  Comparison Status: WARNING
+  Discrepancies: 1
+  Confidence: 0.7
+  - IRR: 18.50% vs 18.20% (diff: 0.30%)
+
+==================================================
+Reconciliation tests completed!

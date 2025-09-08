@@ -2,12 +2,21 @@
 
 import uuid
 from datetime import datetime
-from typing import Optional, Dict, Any, List
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import (
-    Column, String, DateTime, Text, JSON, Float, Integer, 
-    Boolean, ForeignKey, UniqueConstraint, Index
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -148,6 +157,7 @@ class Document(Base):
         Index("ix_documents_document_type", "document_type"),
         Index("ix_documents_processing_status", "processing_status"),
         Index("ix_documents_reporting_date", "reporting_date"),
+        UniqueConstraint("file_hash", name="uq_document_file_hash"),
     )
 
 

@@ -1,9 +1,10 @@
 """Performance metrics reconciliation and recalculation."""
 
+import logging
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
-import logging
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 from scipy.optimize import newton
 

@@ -1,14 +1,16 @@
 """Core PDF parsing functionality for PE documents."""
 
+import io
 import re
-from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
-import PyPDF2
+from typing import Any, Dict, List, Optional, Tuple
+
 import pdfplumber
+import PyPDF2
 import pytesseract
 from PIL import Image
-import io
 from structlog import get_logger
+
 from app.pe_docs.config import get_pe_config
 
 logger = get_logger()

@@ -1,12 +1,13 @@
 """CSV document processor."""
 
-import pandas as pd
-from typing import Dict, Any, List
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Any, Dict, List
 
-from app.processors.base import DocumentProcessor
+import pandas as pd
+
 from app.processors.ai_classifier import AIClassifier
+from app.processors.base import DocumentProcessor
 
 
 class CSVProcessor(DocumentProcessor):

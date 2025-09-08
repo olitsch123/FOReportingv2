@@ -2,7 +2,7 @@
 
 Revision ID: pe_enhanced_001
 Revises: e01e58ef9cbe
-Create Date: 2024-01-15 10:00:00.000000
+Create Date: 2024-01-15
 
 """
 from alembic import op
@@ -17,6 +17,25 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Create pe_investor table (must be created before tables that reference it)
+    op.create_table('pe_investor',
+        sa.Column('investor_id', sa.String(36), nullable=False),
+        sa.Column('investor_code', sa.String(50), nullable=False),
+        sa.Column('investor_name', sa.String(255), nullable=False),
+        sa.Column('investor_type', sa.String(50)),
+        sa.Column('legal_entity_name', sa.String(255)),
+        sa.Column('tax_id', sa.String(50)),
+        sa.Column('domicile', sa.String(100)),
+        sa.Column('contact_info', sa.JSON()),
+        sa.Column('metadata', sa.JSON()),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), onupdate=sa.text('now()')),
+        sa.PrimaryKeyConstraint('investor_id'),
+        sa.UniqueConstraint('investor_code')
+    )
+    op.create_index('idx_investor_name', 'pe_investor', ['investor_name'])
+    op.create_index('idx_investor_type', 'pe_investor', ['investor_type'])
+    
     # Create pe_fund_master table
     op.create_table('pe_fund_master',
         sa.Column('fund_id', postgresql.UUID(as_uuid=True), nullable=False),

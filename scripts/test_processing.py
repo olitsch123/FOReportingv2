@@ -7,10 +7,10 @@ from pathlib import Path
 # Add the parent directory to Python path
 sys.path.append(str(Path(__file__).parent.parent))
 
+from app.database.connection import Base, engine
 from app.processors.processor_factory import ProcessorFactory
 from app.services.document_service import DocumentService
 from app.services.vector_service import VectorService
-from app.database.connection import engine, Base
 
 
 async def test_processors():

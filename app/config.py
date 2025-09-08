@@ -1,5 +1,7 @@
-﻿from pathlib import Path
-import os, yaml
+﻿import os
+from pathlib import Path
+
+import yaml
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,10 +60,10 @@ def load_settings() -> dict:
     rt = _read_runtime_yaml()
 
     vector_backend = (rt.get("vector_backend") or "openai").strip().lower()
-    reporting_ccy  = (rt.get("reporting_ccy") or "EUR").strip().upper()
-    openai_cfg     = rt.get("openai") or {}
-    ingestion_cfg  = rt.get("ingestion") or {}
-    scoring_cfg    = rt.get("scoring") or {}
+    reporting_ccy = (rt.get("reporting_ccy") or "EUR").strip().upper()
+    openai_cfg = rt.get("openai") or {}
+    ingestion_cfg = rt.get("ingestion") or {}
+    scoring_cfg = rt.get("scoring") or {}
     tolerances_cfg = rt.get("tolerances") or {}
 
     settings = {

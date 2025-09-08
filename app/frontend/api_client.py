@@ -1,8 +1,9 @@
 """API client for frontend to backend communication."""
 
 import os
+from typing import Any, Dict, Optional
+
 import requests
-from typing import Dict, Any, Optional
 import streamlit as st
 
 # Get API base URL from environment

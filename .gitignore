@@ -201,3 +201,21 @@ app/pe_docs/seeds/*
 *.db
 *.sqlite3
 foreport.db
+
+# Runtime generated files (should not be committed)
+test_local_system.py
+local_verification_results.json
+local_setup_status.json
+.pgpass
+
+# Large test exports
+test_export.csv
+*.large.csv
+
+# Temporary fix scripts (one-time use)
+fix_*.py
+fix_*.bat
+
+# Auto-generated documentation
+*_SUMMARY.md
+*_STATUS.md

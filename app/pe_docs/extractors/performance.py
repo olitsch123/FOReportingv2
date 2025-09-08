@@ -1,7 +1,9 @@
 """Performance metrics extractor for PE documents."""
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from .base import BaseExtractor
+
 
 class PerformanceMetricsExtractor(BaseExtractor):
     """Extract performance metrics like IRR, MOIC, TVPI, etc."""

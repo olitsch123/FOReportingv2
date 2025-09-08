@@ -1,20 +1,26 @@
 """Chat service for natural language querying of financial data."""
 
-import logging
 import json
-from typing import List, Dict, Any, Optional, Tuple
+import logging
+import os
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-import openai
+from typing import Any, Dict, List, Optional, Tuple
 
+import openai
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from app.config import load_settings
 from app.database.connection import get_db_session
 from app.database.models import (
-    ChatSession, ChatMessage, Document, Fund, FinancialData, Investor
+    ChatMessage,
+    ChatSession,
+    Document,
+    FinancialData,
+    Fund,
+    Investor,
 )
 from app.services.vector_service import VectorService
-from app.config import load_settings
-import os
 
 settings = load_settings()
 

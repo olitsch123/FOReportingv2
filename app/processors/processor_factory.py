@@ -1,11 +1,11 @@
 """Document processor factory."""
 
-from typing import Optional, List
 from pathlib import Path
+from typing import List, Optional
 
 from app.processors.base import DocumentProcessor
-from app.processors.pdf_processor import PDFProcessor
 from app.processors.csv_processor import CSVProcessor
+from app.processors.pdf_processor import PDFProcessor
 from app.processors.xlsx_processor import XLSXProcessor
 
 

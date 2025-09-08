@@ -1,8 +1,13 @@
 ﻿# scripts/seed_field_library.py
 # Generates Field Library bundle into app/pe_docs/mapping/ from "Field Library.xlsx".
-import os, sys, json, re, csv
-import pandas as pd
+import csv
+import json
+import os
+import re
+import sys
 from pathlib import Path
+
+import pandas as pd
 
 SEED_DIR  = os.getenv("FIELD_SEED_DIR", "app/pe_docs/seeds")
 XLSX_NAME = os.getenv("FIELD_SEED_XLSX", "Field Library.xlsx")
