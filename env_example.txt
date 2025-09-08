@@ -20,11 +20,11 @@ DATABASE_URL=postgresql+psycopg://your_username:your_secure_password@postgres:54
 # OPENAI CONFIGURATION (REQUIRED)
 # =============================================================================
 # Get your OpenAI API key from: https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+OPENAI_API_KEY=sk-placeholder-replace-with-your-actual-key
 
 # Get your Vector Store ID from OpenAI or create one
 # You can create one at: https://platform.openai.com/vector-stores
-OPENAI_VECTOR_STORE_ID=vs_your_actual_vector_store_id_here
+OPENAI_VECTOR_STORE_ID=vs_placeholder_replace_with_your_actual_id
 
 # =============================================================================
 # INVESTOR FOLDER PATHS
